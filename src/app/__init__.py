@@ -15,9 +15,9 @@ app = Flask(__name__)
 # ??
 
 
-# @app.route('/')
-# def run():
-#     return 'ok'
+@app.route('/')
+def run():
+    return render_template('index.html')
 
 @app.route('/blikveld')
 def blikveld():
@@ -28,7 +28,6 @@ def blikveld():
 def hello(name=None):
     return render_template('hello.html', name=name)
 
-@app.route('/')
 @app.route('/camera', methods=['POST', 'GET'])
 def camera():
     if request.method == 'POST':
