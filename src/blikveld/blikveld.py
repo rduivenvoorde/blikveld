@@ -101,7 +101,9 @@ class BlikVeld:
         #print(geojson.dumps(camera_feature))
         # some magic to create the posList we use in the gml
         # WFS2: Y X instead of X Y !!
+        # normal camera
         #poslist = ' '.join(f'{i[1]} {i[0]}' for i in coords)
+        # resized camera
         poslist = ' '.join(f'{i[1]} {i[0]}' for i in list(resized_camera_triangle.exterior.coords))
 
 
@@ -153,11 +155,10 @@ class BlikVeld:
                 raise BlikVeldException(f'WFS url returned status {r.status_code}:\n{r.url}')
             #print(r.url)
             panden = geojson.loads(r.text)
-
+            panden['metadata'] = {'fetched': len(panden.features)}
             #with open('/tmp/panden.json', 'w') as f:
             #    geojson.dump(panden, f, indent=2)
             #print(f'Found {len(panden["features"])} panden with camera json')
-
 
         # insert both original camera and resized camera into the panden(result)
         panden.features.insert(0, camera_feature)
@@ -202,6 +203,7 @@ class BlikVeld:
                     result.append(centroid_feature)
                     break
 
+        panden['metadata'].update({'hits': len(result), 'scaled': camera_scale, 'camera': camera})
         for centroid_feature in result:
             panden.features.insert(0, centroid_feature)
 
