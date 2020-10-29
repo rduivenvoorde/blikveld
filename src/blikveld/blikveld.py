@@ -91,7 +91,6 @@ class BlikVeld:
         # some magic to create the posList we use in the gml
         # WFS2: Y X instead of X Y !!
         poslist = ' '.join(f'{i[1]} {i[0]}' for i in coords)
-        print(poslist)
 
         # ARGH!!!! owslib does not do spatial filtering !!! https://github.com/geopython/OWSLib/issues/128
         # we COULD do with bbox, but ...
@@ -139,12 +138,12 @@ class BlikVeld:
             r = requests.get(wfs_url, params=params, timeout=wfs_timout)
             if 200 != r.status_code:
                 raise BlikVeldException(f'WFS url returned status {r.status_code}:\n{r.url}')
-            print(r.url)
+            #print(r.url)
             panden = geojson.loads(r.text)
             panden.features.insert(0, camera_feature)
-            with open('/tmp/panden.json', 'w') as f:
-                geojson.dump(panden, f, indent=2)
-            print(f'Found {len(panden["features"])} panden with camera json')
+            #with open('/tmp/panden.json', 'w') as f:
+            #    geojson.dump(panden, f, indent=2)
+            #print(f'Found {len(panden["features"])} panden with camera json')
 
 
         # 2 scenario's:
@@ -162,14 +161,14 @@ class BlikVeld:
             if not 'bouwjaar' in feature.properties:
                 continue
             shape_dict[feature.properties['gid']] = shapely.geometry.shape(feature.geometry)
-        i=0
+        i = 0
         result = []
         from shapely.prepared import prep
         for pand_id, pand_geom in shape_dict.items():
             # if i == 4:
             #     break
             # i += 1
-            print(pand_geom)
+            # print(pand_geom)
             for vertex in pand_geom.exterior.coords:
                 #print(vertex, view_point.coords[0])
                 line = shapely.geometry.LineString([vertex, view_point.coords[0]])
@@ -182,7 +181,7 @@ class BlikVeld:
                     # - viewpoint TO vertex
                     # did NOT cross another pand, meaning:
                     # the pand with this vertex is probably in sight from the viewpoint
-                    print(f'Adding {pand_id} to the results')
+                    # print(f'Adding {pand_id} to the results')
                     centroid = pand_geom.centroid  # returns a geojson.Point
                     feature = geojson.feature.Feature(geometry=centroid, properties={'id': pand_id})
                     result.append(feature)
@@ -190,15 +189,10 @@ class BlikVeld:
 
         for feature in result:
             panden.features.insert(0, feature)
-        with open('/tmp/pandenresult.json', 'w') as f:
-            geojson.dump(panden, f, indent=2)
+        #with open('/tmp/pandenresult.json', 'w') as f:
+        #    geojson.dump(panden, f, indent=2)
 
         return geojson.dumps(panden)
-
-
-
-
-
 
 
 if __name__ == '__main__':
