@@ -15,9 +15,9 @@ app = Flask(__name__)
 # ??
 
 
-@app.route('/')
-def run():
-    return 'ok'
+# @app.route('/')
+# def run():
+#     return 'ok'
 
 @app.route('/blikveld')
 def blikveld():
@@ -28,13 +28,13 @@ def blikveld():
 def hello(name=None):
     return render_template('hello.html', name=name)
 
+@app.route('/')
 @app.route('/camera', methods=['POST', 'GET'])
 def camera():
     if request.method == 'POST':
         camera_json = request.form['camera_json']
-        result_json = BlikVeld().run(camera_json)
-        #return result_json
-        #return render_template('result.html', result_json=result_json)
+        camera_scale = float(request.form['camera_scale'])
+        result_json = BlikVeld().run(camera_json, camera_scale)
         import urllib.parse
         result_json_encoded = urllib.parse.quote(result_json)
         return render_template('result.html', result_json=result_json, result_json_encoded=result_json_encoded)

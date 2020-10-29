@@ -5,6 +5,10 @@ import geojson  # https://pypi.org/project/geojson/
 # pip install requests
 import requests
 
+import shapely.geometry
+import shapely.affinity
+from shapely.prepared import prep
+
 # Camera in Atjestraat:
 # kijkhoek/sector 39 graden
 # bearing: 31 graden
@@ -49,9 +53,7 @@ class BlikVeldException(BaseException):
 
 class BlikVeld:
 
-
-    #def main():
-    def run(self, camera_json=None):
+    def run(self, camera_json=None, camera_scale=1):
 
         if not camera_json:
             camera_json = CAMERA_JSON
@@ -82,15 +84,26 @@ class BlikVeld:
         coords.insert(0, view_point['coordinates'])
         coords.append(view_point['coordinates'])
         # now create a proper geojson.Feature from it
-        polygon = geojson.Polygon([coords])
-        camera_feature = geojson.Feature(geometry=polygon, properties={'name': 'camera'})
+        camera_triangle = geojson.Polygon([coords])
+        # and a Feature from that
+        camera_feature = geojson.Feature(geometry=camera_triangle, properties={'name': 'camera'})
+
+        # to resize the camera-triangle we use shapely.affinity.scale
+        # but NOTE that untill now we work with geojson-geoms so we need to juggle these to shapely-geoms...
+        resized_camera_triangle = shapely.affinity.scale(
+                shapely.geometry.shape(camera_triangle),
+                xfact=camera_scale, yfact=camera_scale, origin=shapely.geometry.shape(view_point))
+        resized_camera_feature = geojson.Feature(geometry=geojson.Polygon([list(resized_camera_triangle.exterior.coords)]), properties={'name': 'camera_resized'})
+
         #fc = geojson.FeatureCollection([camera_feature])
         #print(geojson.dumps(fc))
 
         #print(geojson.dumps(camera_feature))
         # some magic to create the posList we use in the gml
         # WFS2: Y X instead of X Y !!
-        poslist = ' '.join(f'{i[1]} {i[0]}' for i in coords)
+        #poslist = ' '.join(f'{i[1]} {i[0]}' for i in coords)
+        poslist = ' '.join(f'{i[1]} {i[0]}' for i in list(resized_camera_triangle.exterior.coords))
+
 
         # ARGH!!!! owslib does not do spatial filtering !!! https://github.com/geopython/OWSLib/issues/128
         # we COULD do with bbox, but ...
@@ -140,30 +153,32 @@ class BlikVeld:
                 raise BlikVeldException(f'WFS url returned status {r.status_code}:\n{r.url}')
             #print(r.url)
             panden = geojson.loads(r.text)
-            panden.features.insert(0, camera_feature)
+
             #with open('/tmp/panden.json', 'w') as f:
             #    geojson.dump(panden, f, indent=2)
             #print(f'Found {len(panden["features"])} panden with camera json')
 
+
+        # insert both original camera and resized camera into the panden(result)
+        panden.features.insert(0, camera_feature)
+        panden.features.insert(0, resized_camera_feature)
 
         # 2 scenario's:
         # -1- for every pand/polygon get the coordinates, create a line from viewpoint to coordinate, and create a list of polygons which do NOT cross another polygon
         # -2- within the 'view triangle' create 'beams' (per 1 (0.5) degree) and see which polygon crosses and add the nearest to viewpoint to the list
 
         # so panden is a (geojson)FeatureCollection object (! not a dict)
-        import shapely.geometry
 
         view_point = shapely.geometry.shape(view_point)
 
-        # first create a dict of feature_identiefication -> shapely polygons
+        # first create a dict of feature_identification -> shapely polygons
         shape_dict = {}
-        for feature in panden.features:
-            if not 'bouwjaar' in feature.properties:
+        for centroid_feature in panden.features:
+            if not 'bouwjaar' in centroid_feature.properties:
                 continue
-            shape_dict[feature.properties['gid']] = shapely.geometry.shape(feature.geometry)
+            shape_dict[centroid_feature.properties['gid']] = shapely.geometry.shape(centroid_feature.geometry)
         i = 0
         result = []
-        from shapely.prepared import prep
         for pand_id, pand_geom in shape_dict.items():
             # if i == 4:
             #     break
@@ -173,7 +188,7 @@ class BlikVeld:
                 #print(vertex, view_point.coords[0])
                 line = shapely.geometry.LineString([vertex, view_point.coords[0]])
 
-                prepared_line = prep(line)
+                prepared_line = shapely.prepared.prep(line)
                 hits = list(filter(prepared_line.crosses, shape_dict.values()))
                 #print(len(hits))
                 if len(hits) == 0:
@@ -183,12 +198,13 @@ class BlikVeld:
                     # the pand with this vertex is probably in sight from the viewpoint
                     # print(f'Adding {pand_id} to the results')
                     centroid = pand_geom.centroid  # returns a geojson.Point
-                    feature = geojson.feature.Feature(geometry=centroid, properties={'id': pand_id})
-                    result.append(feature)
+                    centroid_feature = geojson.feature.Feature(geometry=centroid, properties={'id': pand_id})
+                    result.append(centroid_feature)
                     break
 
-        for feature in result:
-            panden.features.insert(0, feature)
+        for centroid_feature in result:
+            panden.features.insert(0, centroid_feature)
+
         #with open('/tmp/pandenresult.json', 'w') as f:
         #    geojson.dump(panden, f, indent=2)
 

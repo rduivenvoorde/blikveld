@@ -18,6 +18,8 @@ Start Flask from within src dir (see: https://flask.palletsprojects.com/)
 cd src
 # now:
 export FLASK_APP=app
+# if you want development mode (auto reload when editing)
+export FLASK_ENV=development  
 flask run
 * Running on http://127.0.0.1:5000/
 ```
