@@ -1,0 +1,44 @@
+<!doctype html>
+<title>Camera json</title>
+
+<p>Camera json example see <a href="http://spacetime.nypl.org/Leaflet.GeotagPhoto/examples/camera.html">camera demo</a></p>
+<form action="./camera" method="POST">
+  <textarea name="camera_json" rows="40" cols="50" >
+
+  {
+  "type": "Feature",
+  "properties": {
+    "angle": 38.876645504061116,
+    "bearing": 31.979981482645943,
+    "distance": 87.9921646359149
+  },
+  "geometry": {
+    "type": "GeometryCollection",
+    "geometries": [
+      {
+        "type": "Point",
+        "coordinates": [
+          4.646878838539124,
+          52.3969167956431
+        ]
+      },
+      {
+        "type": "LineString",
+        "coordinates": [
+          [
+            4.647177386477727,
+            52.39773567907421
+          ],
+          [
+            4.647953579015309,
+            52.39743995473123
+          ]
+        ]
+      }
+    ]
+  }
+}
+
+</textarea>
+  <input type="submit">
+</form>
