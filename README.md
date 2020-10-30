@@ -27,3 +27,14 @@ flask run
 Now in your browser go to http://127.0.0.1:5000/ or http://127.0.0.1:5000/camera
 
 
+Wishlist:
+
+- extra filters (like bouwjaar)
+- wsgi script
+- check inputs (maximize size of camera triangle, resize-factor, camera json, result set etc)
+- output formats (FULL, result-panden, result-centroids (with/without camera etcetc))
+- switch between BAG and Kadastrale kaart
+- implement 'beam'-scenario
+- only take vertices into account actually in camera-triangle
+- index input page with camera-widget
+
