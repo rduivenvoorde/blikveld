@@ -8,6 +8,7 @@ import requests
 import shapely.geometry
 import shapely.affinity
 from shapely.prepared import prep
+from shapely.geometry import Point
 
 # Camera in Atjestraat:
 # kijkhoek/sector 39 graden
@@ -40,6 +41,41 @@ CAMERA_JSON = """
           [
             4.647953579015309,
             52.39743995473123
+          ]
+        ]
+      }
+    ]
+  }
+}
+"""
+CAMERA_JSON = """
+{
+  "type": "Feature",
+  "properties": {
+    "angle": 18.01908757241881,
+    "bearing": 102.81261738101036,
+    "distance": 103.44202097484239
+  },
+  "geometry": {
+    "type": "GeometryCollection",
+    "geometries": [
+      {
+        "type": "Point",
+        "coordinates": [
+          4.647431373596192,
+          52.391106301345005
+        ]
+      },
+      {
+        "type": "LineString",
+        "coordinates": [
+          [
+            4.648970904909532,
+            52.39104383732581
+          ],
+          [
+            4.648863730220486,
+            52.390756273966716
           ]
         ]
       }
@@ -186,6 +222,9 @@ class BlikVeld:
             # i += 1
             # print(pand_geom)
             for vertex in pand_geom.exterior.coords:
+                # only vertices WITHIN the camera triangle
+                if not resized_camera_triangle.contains(shapely.geometry.Point(vertex)):
+                    continue
                 #print(vertex, view_point.coords[0])
                 line = shapely.geometry.LineString([vertex, view_point.coords[0]])
 
