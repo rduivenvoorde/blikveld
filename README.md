@@ -38,3 +38,18 @@ Wishlist:
 - only take vertices into account actually in camera-triangle
 - index input page with camera-widget
 
+
+DEVELOPMENT
+
+Debugging in PyCharm
+
+- DO NOT add 'quicker debugging by using cpython' to the project, else: 
+  if you see this: Connection to Python debugger failed: Socket closed  https://intellij-support.jetbrains.com/hc/en-us/community/posts/360009880699-Can-t-run-Debugger-Connection-to-Python-debugger-failed-Socket-closed-
+  PYDEVD_USE_CYTHON=NO
+  
+- on Debian: use required modules from Debian itself instead of installing them from pip (for development)
+
+
+
+
+

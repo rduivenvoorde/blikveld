@@ -3,12 +3,12 @@ from flask import request
 from flask import render_template
 
 from blikveld.blikveld import BlikVeld
-#from blikveld import BlikVeld
+# from blikveld import BlikVeld
 
 app = Flask(__name__)
 
 
-#Thinking about api's here:
+# Thinking about api's here:
 # /         html page with entrypoints/examples
 # /camera   GET input form POST result html page
 # /api      GET help page (OR also working) POST retrieve geojson (of camera, all panden and blikveld panden)
@@ -19,14 +19,17 @@ app = Flask(__name__)
 def run():
     return render_template('index.html')
 
+
 @app.route('/blikveld')
 def blikveld():
     return BlikVeld().run()
+
 
 @app.route('/hello/')
 @app.route('/hello/<name>')
 def hello(name=None):
     return render_template('hello.html', name=name)
+
 
 @app.route('/camera', methods=['POST', 'GET'])
 def camera():

@@ -4,11 +4,15 @@
 import geojson  # https://pypi.org/project/geojson/
 # pip install requests
 import requests
+import math
+import webbrowser
 
 import shapely.geometry
 import shapely.affinity
+import shapely.ops
+
 from shapely.prepared import prep
-from shapely.geometry import Point
+# from shapely.geometry import Point
 
 # Camera in Atjestraat:
 # kijkhoek/sector 39 graden
@@ -48,48 +52,40 @@ CAMERA_JSON = """
   }
 }
 """
-CAMERA_JSON = """
-{
-  "type": "Feature",
-  "properties": {
-    "angle": 18.01908757241881,
-    "bearing": 102.81261738101036,
-    "distance": 103.44202097484239
-  },
-  "geometry": {
-    "type": "GeometryCollection",
-    "geometries": [
-      {
-        "type": "Point",
-        "coordinates": [
-          4.647431373596192,
-          52.391106301345005
-        ]
-      },
-      {
-        "type": "LineString",
-        "coordinates": [
-          [
-            4.648970904909532,
-            52.39104383732581
-          ],
-          [
-            4.648863730220486,
-            52.390756273966716
-          ]
-        ]
-      }
-    ]
-  }
-}
-"""
+
 
 class BlikVeldException(BaseException):
     pass
 
 class BlikVeld:
 
-    def run(self, camera_json=None, camera_scale=1):
+    def show_in_browser(self, geo_json):
+        #webbrowser.open("https://google.com")
+        import urllib.parse
+        result_json_encoded = urllib.parse.quote(geo_json)
+        webbrowser.open(f'http://geojson.io/#data=data:application/json,{result_json_encoded }')
+
+    def azimuth_points(self, point1, point2):
+        '''azimuth between 2 shapely points '''
+        angle = math.atan2(point2.x - point1.x, point2.y - point1.y)
+        # return math.degrees(angle)if angle>0 else math.degrees(angle) + 180
+        return math.degrees(angle) % 360
+
+    def azimuth(self, linestring):
+        '''azimuth of 1 shapely LineSting '''
+        point1 = shapely.geometry.Point(linestring.coords[0])
+        point2 = shapely.geometry.Point(linestring.coords[1])
+        return self.azimuth_points(point1, point2)
+
+    def run(self, camera_json=None, camera_scale=1,
+            method_vertex=True,
+            method_beam=True,
+
+            show_result=True,
+            show_beams=False,
+            show_intersection_beams=False,
+            show_intersection_nearest=False,
+            show_intersection_points=False):
 
         if not camera_json:
             camera_json = CAMERA_JSON
@@ -100,7 +96,6 @@ class BlikVeld:
 
         if not ('geometry' in camera and 'geometries' in camera['geometry']):
             raise BlikVeldException('Camera json should be valid geojson, and have a "geometry" with two "geometries" ')
-            return
 
         view_point = None
         horizon = None
@@ -180,11 +175,13 @@ class BlikVeld:
             'filter': spatial_filter
         }
 
-        DEV = False
-
+        DEV = True
         if DEV:
-            with open('/tmp/panden.json', 'r') as f:
-                panden = geojson.load(f)
+            # with open('/tmp/panden.json', 'r') as f:
+            #     panden = geojson.load(f)
+            # to make this work you have to set the 'tests' directory as src dir in PyCharm!
+            import panden_jsons
+            panden = geojson.loads(panden_jsons.PANDEN)
         else:
             r = requests.get(wfs_url, params=params, timeout=wfs_timout)
             if 200 != r.status_code:
@@ -192,9 +189,8 @@ class BlikVeld:
             #print(r.url)
             panden = geojson.loads(r.text)
             panden['metadata'] = {'fetched': len(panden.features)}
-            #with open('/tmp/panden.json', 'w') as f:
-            #    geojson.dump(panden, f, indent=2)
-            #print(f'Found {len(panden["features"])} panden with camera json')
+            with open('/tmp/panden.json', 'w') as f:
+               geojson.dump(panden, f, indent=2)
 
         # insert both original camera and resized camera into the panden(result)
         panden.features.insert(0, camera_feature)
@@ -206,51 +202,120 @@ class BlikVeld:
 
         # so panden is a (geojson)FeatureCollection object (! not a dict)
 
-        view_point = shapely.geometry.shape(view_point)
-
         # first create a dict of feature_identification -> shapely polygons
         shape_dict = {}
         for centroid_feature in panden.features:
             if not 'bouwjaar' in centroid_feature.properties:
                 continue
             shape_dict[centroid_feature.properties['gid']] = shapely.geometry.shape(centroid_feature.geometry)
-        i = 0
-        result = []
-        for pand_id, pand_geom in shape_dict.items():
-            # if i == 4:
-            #     break
-            # i += 1
-            # print(pand_geom)
-            for vertex in pand_geom.exterior.coords:
-                # only vertices WITHIN the camera triangle
-                if not resized_camera_triangle.contains(shapely.geometry.Point(vertex)):
-                    continue
-                #print(vertex, view_point.coords[0])
-                line = shapely.geometry.LineString([vertex, view_point.coords[0]])
 
-                prepared_line = shapely.prepared.prep(line)
-                hits = list(filter(prepared_line.crosses, shape_dict.values()))
-                #print(len(hits))
-                if len(hits) == 0:
-                    # this means that THIS line of sight of:
-                    # - viewpoint TO vertex
-                    # did NOT cross another pand, meaning:
-                    # the pand with this vertex is probably in sight from the viewpoint
-                    # print(f'Adding {pand_id} to the results')
-                    centroid = pand_geom.centroid  # returns a geojson.Point
-                    centroid_feature = geojson.feature.Feature(geometry=centroid, properties={'id': pand_id})
-                    result.append(centroid_feature)
-                    break
+        result = []
+
+        if (method_vertex):
+            i = 0
+            for pand_id, pand_geom in shape_dict.items():
+                # if i == 4:
+                #     break
+                # i += 1
+                # print(pand_geom)
+                for vertex in pand_geom.exterior.coords:
+                    # only vertices WITHIN the camera triangle
+                    if not resized_camera_triangle.contains(shapely.geometry.Point(vertex)):
+                        continue
+                    #print(vertex, view_point.coords[0])
+                    line = shapely.geometry.LineString([vertex, view_point.coordinates])
+
+                    prepared_line = shapely.prepared.prep(line)
+                    hits = list(filter(prepared_line.crosses, shape_dict.values()))
+                    #print(len(hits))
+                    if len(hits) == 0:
+                        # this means that THIS line of sight of:
+                        # - viewpoint TO vertex
+                        # did NOT cross another pand, meaning:
+                        # the pand with this vertex is probably in sight from the viewpoint
+                        # print(f'Adding {pand_id} to the results')
+                        centroid = pand_geom.centroid  # returns a geojson.Point
+                        centroid_feature = geojson.feature.Feature(geometry=centroid, properties={'id': pand_id})
+                        result.append(centroid_feature)
+                        break
+
+        if method_beam:
+            horizon = shapely.geometry.LineString([horizon['coordinates'][0], horizon['coordinates'][1]])
+            #for rotation in range(2, 100, 2):  # 50 beams
+            #for rotation in range(2, 100, 4):  # test 25 beams
+            for rotation in range(10,  100, 30):  # test
+                part_horizon = shapely.ops.substring(horizon, 0, rotation/100, True)
+                beam = shapely.geometry.LineString([view_point['coordinates'], part_horizon.coords[1]])
+
+                if show_beams:
+                    panden.features.insert(0, beam)
+
+                # for every beam look which polygons are crosses
+                # BUT only select the nearest!! to the viewpoint !!
+                nearest_length = 10e10
+                nearest_pand = None
+                nearest_intersection = None
+                for pand_id, pand_geom in shape_dict.items():
+                    if not beam.intersection(pand_geom).is_empty:
+                        intersections = beam.intersection(pand_geom)
+                        # in this case (beam first argument) intersections are Shapely LineStrings OR Shapely MultiLineStrings (.geoms to get a list of LineStrings)
+
+                        # show_intersection_beams : show the intersecting geometries (linestrings)
+                        if show_intersection_beams:
+                            result.append(geojson.feature.Feature(geometry=intersections, properties={'id': pand_id, 'type': 'beam_intersection_linestring'}))
+
+                        if intersections.type == 'MultiLineString':
+                            # testing here to be able to filter out those, as OTHERS should be wrapped in a list
+                            #print(intersections)
+                            pass
+                        else:
+                            intersections = [intersections]  # pack a single linestring in a list to be able to walk over it
+                        for intersection_linestring in intersections:
+                            for intersection in intersection_linestring.coords:
+                                intersection_point_feature = geojson.feature.Feature(geometry=geojson.geometry.Point(intersection), properties={'id': pand_id, 'type': 'beam_intersection_point'})
+                                if show_intersection_points:
+                                    result.append(intersection_point_feature)
+                                # create a length_line between viewpoint and intersection point
+                                length_line = shapely.geometry.LineString([view_point['coordinates'], intersection])
+                                beam_length = length_line.length
+                                if beam_length < nearest_length:
+                                    nearest_length = beam_length
+                                    centroid = pand_geom.centroid  # returns a geojson.Point
+                                    centroid_feature = geojson.feature.Feature(geometry=centroid, properties={'id': pand_id})
+                                    nearest_pand = centroid_feature
+                                    nearest_intersection = intersection_point_feature
+
+                # OK, all intersections of this beam handled...
+                if nearest_pand:
+                    if not nearest_pand in result and show_result:
+                        result.append(nearest_pand)
+                    if show_intersection_nearest:
+                        result.append(nearest_intersection)
+                    pass
 
         panden['metadata'].update({'hits': len(result), 'scaled': camera_scale, 'camera': camera})
+        #  ???? now move results to panden ????
         for centroid_feature in result:
-            panden.features.insert(0, centroid_feature)
+           panden.features.insert(0, centroid_feature)
 
         #with open('/tmp/pandenresult.json', 'w') as f:
         #    geojson.dump(panden, f, indent=2)
 
         return geojson.dumps(panden)
 
-
 if __name__ == '__main__':
-    BlikVeld().run()
+    b = BlikVeld()
+    result = b.run(camera_json=None,
+                   camera_scale=1,
+
+                   show_result=False,
+
+                   method_vertex=False,
+
+                   method_beam=True,
+                   show_beams=False,
+                   show_intersection_beams=True,
+                   show_intersection_nearest=True,
+                   show_intersection_points=False,
+                   )
+    b.show_in_browser(result)
