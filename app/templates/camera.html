@@ -11,6 +11,12 @@
     <option value="2">2</option>
   </select>
   <br/>
+  <label>WFS Data source</label>
+  <select name="datasource" id="datasource">
+    <option value="use_bag_panden">BAG Panden</option>
+    <option value="use_kadaster_bebouwing">Kadaster Bebouwing</option>
+  </select>
+  <br/>
   <label>Camera json</label>
   <textarea name="camera_json" rows="40" cols="50" >
 {
@@ -47,6 +53,18 @@
   }
 }
   </textarea>
+
   <br/>
+  <label>Use method 'vertex'</label><input type="checkbox" id="method_vertex" name="method_vertex" checked>
+  <br/>
+  <label>Use method 'beam'</label><input type="checkbox" id="method_beam" name="method_beam" checked>
+  <br/>
+  <label>Show input features</label><input type="checkbox" id="show_input" name="show_input">
+  <br/>
+  <label>Show Camera's</label><input type="checkbox" id="show_cameras" name="show_cameras" checked>
+  <br/>
+  <label>Show Result Centroid's</label><input type="checkbox" id="show_result_centroids" name="show_result_centroids">
+  <br/>
+
   <input type="submit"/>
 </form>

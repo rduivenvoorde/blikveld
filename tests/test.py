@@ -1,9 +1,14 @@
+
 import unittest
 import geojson
-import blikveld
+import webbrowser
 import camera_jsons
 
-import webbrowser
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from blikveld.blikveld import BlikVeld
 
 class MyTestCase(unittest.TestCase):
 
@@ -15,21 +20,18 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(result.metadata['hits'], hits)
 
     def show_in_browser(self, geo_json):
-        #webbrowser.open("https://google.com")
         import urllib.parse
         result_json_encoded = urllib.parse.quote(geo_json)
         webbrowser.open(f'http://geojson.io/#data=data:application/json,{result_json_encoded }')
 
     def test_default_camera(self):
-        result = blikveld.BlikVeld().run()
-        self.geojson_check(result, 20, 12) # fetched=20, hits=12
+        result = BlikVeld().run()
+        self.geojson_check(result, 20, 12)  # fetched=20, hits=12
 
     def test_broodfabriek_camera(self):
-        result = blikveld.BlikVeld().run(camera_jsons.CAMERA_BROODFABRIEK)
-        self.geojson_check(result, 1, 0)
+        result = BlikVeld().run(camera_jsons.CAMERA_BROODFABRIEK)
+        self.geojson_check(result, 1, 1)
         self.show_in_browser(result)
-
-
 
 if __name__ == '__main__':
     unittest.main()

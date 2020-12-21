@@ -14,8 +14,7 @@ Populate venv with modules used: ``pip install -r REQUIREMENTS.txt``
 Start Flask from within src dir (see: https://flask.palletsprojects.com/)
 
 ```
-# cd into the src dir
-cd src
+# cd into the blikvedl dir
 # now:
 export FLASK_APP=app
 # if you want development mode (auto reload when editing)
