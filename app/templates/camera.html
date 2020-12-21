@@ -1,24 +1,143 @@
 <!doctype html>
+
 <title>Camera json</title>
 
-<p>Camera json example see <a href="http://spacetime.nypl.org/Leaflet.GeotagPhoto/examples/camera.html">camera demo</a></p>
+<style type="text/css">
+
+body {
+  margin: 40px 10%;
+  font-family: Garamond, serif;
+  background-color: #fff;
+  color: #444;
+  font-size: 20px;
+}
+h1, h2, h3, label, td{
+  font-family: Helvetica, sans-serif;
+}
+.wrapper {
+  margin: 0 20px;
+  display: grid;
+  grid-gap: 0px;
+}
+
+@media screen and (min-width: 500px) {
+
+  .wrapper {
+    margin: 0 auto;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .header, .footer {
+    grid-column: 1 / -1;
+    /* needed for the floated layout */
+    clear: both;
+  }
+
+}
+
+.wrapper > * {
+  background-color: #e4e1f0;
+  padding: 20px;
+  /* needed for the floated layout*/
+  margin-bottom: 10px;
+}
+textarea{
+  width: 100%;
+}
+pre{
+  overflow: auto;
+  background-color: #edefee;
+  padding: 5px;
+}
+td{
+  vertical-align: top;
+  border-top: 1px solid #ccc;
+  padding: 8px 20px 8px 0;
+  font-size: 16px;
+}
+
+
+</style>
+
+
+
+<div class="header">
+  <h1>Blikveld2BAG</h1>
+</div>
+
+<p>
+  De Blikveld2BAG API geeft de panden terug die binnen een blikveld vallen. Zo'n blikveld is een driehoekje waarvan 1 hoek het camerastandpunt is. Voor de New York Public Library maakte Bert Spaan een <a href="http://spacetime.nypl.org/Leaflet.GeotagPhoto/examples/camera.html">tooltje om zo'n blikveld mee te tekenen</a>. De output van dat tooltje dient als de input voor deze api.
+</p>
+
+[hier een afbeelding invoegen, misschien links een blikveld -> rechts de gevonden panden] <br />
+
+<h2>Parameters</h2>
+<table>
+  <tr>
+    <td>
+      <strong>camera_json</strong>
+    </td>
+    <td>
+      camera_json=[urlencoded geojson]
+    </td>
+    <td>
+      De geojson moet een GeometryCollection bevatten met een punt (het camerastandpunt) en een lijn (de tegenovergelegen zijde waarmee het blikveld wordt uitgedrukt), zoals het <a href="http://spacetime.nypl.org/Leaflet.GeotagPhoto/examples/camera.html">NYPL tooltje</a> die maakt.
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <strong>camera_scale</strong>
+    </td>
+    <td>
+      camera_scale=1.33
+    </td>
+    <td>
+      verlengt het blikveld. Als je denkt dat mensen het blikveld wat 'kort' getrokken hebben, kan je het met dit getal 'verlengen'.
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <strong>show_result_centroids</strong>
+    </td>
+    <td>
+      show_result_centroids=true
+    </td>
+    <td>
+      geeft punten voor de panden i.p.v. polygonen
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <strong>etc</strong>
+    </td>
+    <td>
+      
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+</table>
+
+
+
+<h2>Probeer het zelf</h2>
+
+[het formulier zou nog de keuze moeten bevatten of je de kale geojson terug wilt of dat je naar geojson.io geslingerd wil worden] <br /><br/>
+
 <form action="./camera" method="POST">
-  <label>Camera scale</label>
-  <select name="camera_scale" id="camera_scale">
-    <option value="1">1</option>
-    <option value="1.2">1.2</option>
-    <option value="1.5">1.5</option>
-    <option value="2">2</option>
-  </select>
-  <br/>
-  <label>WFS Data source</label>
-  <select name="datasource" id="datasource">
-    <option value="use_bag_panden">BAG Panden</option>
-    <option value="use_kadaster_bebouwing">Kadaster Bebouwing</option>
-  </select>
-  <br/>
-  <label>Camera json</label>
-  <textarea name="camera_json" rows="40" cols="50" >
+<div class="wrapper">
+
+  
+
+
+
+
+  <div class="entry">
+  
+  
+
+  <textarea name="camera_json" rows="34">
 {
   "type": "Feature",
   "properties": {
@@ -53,7 +172,32 @@
   }
 }
   </textarea>
+</div>
+<div class="params">
 
+  
+
+  <label>Camera scale</label><br />
+
+  <select name="camera_scale" id="camera_scale" style="width: 50%;">
+    <option value="1">1</option>
+    <option value="1.2">1.2</option>
+    <option value="1.5">1.5</option>
+    <option value="2">2</option>
+  </select>
+
+  <p>
+    De <code>camera_scale</code> verlengt het blikveld. Als je denkt dat mensen het blikveld wat 'kort' getrokken hebben, kan je het met dit getal 'verlengen'.
+  </p>
+
+
+  <br/>
+  <label>WFS Data source</label>
+  <select name="datasource" id="datasource">
+    <option value="use_bag_panden">BAG Panden</option>
+    <option value="use_kadaster_bebouwing">Kadaster Bebouwing</option>
+  </select>
+  <br/>
   <br/>
   <label>Use method 'vertex'</label><input type="checkbox" id="method_vertex" name="method_vertex" checked>
   <br/>
@@ -67,4 +211,10 @@
   <br/>
 
   <input type="submit"/>
+
+</div>
+
+
+</div>
+
 </form>
