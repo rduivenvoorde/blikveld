@@ -1,0 +1,3 @@
+
+class BlikVeldException(BaseException):
+    pass

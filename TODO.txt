@@ -1,0 +1,31 @@
+
+- logging van Requests/Flask: https://flask.palletsprojects.com/en/1.1.x/logging/
+- vangen van Excepties: https://flask.palletsprojects.com/en/1.1.x/errorhandling/
+- QGIS project
+- Saven van vaste geojson
+- checken op max grootte camera
+- checken op max aantal panden/adressen
+- 200 teruggeven als goed
+- input fouten
+- netwerk fouten
+- andere fouten
+- 500(?) als fout
+
+
+camera.json
+(cameras)
+kadaster: get panden within camera
+(pand input)
+vertex method
+(vertex_handled_vertex)
+(vertex_viewpoint_line)
+(vertex_vertex_hit)
+(vertex_viewpoint_line_hit)
+beam method
+(beams_handled)
+(beam_intersection_linestring)
+(beam_nearest_intersection_point)
+(beam_intersection_point)
+(-> result)
+(-> result centroids)
+-> result adressen

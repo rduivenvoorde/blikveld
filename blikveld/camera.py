@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-# pip install geojson
-import geojson  # https://pypi.org/project/geojson/
 # pip install requests
 import requests
 import math
@@ -11,56 +9,58 @@ import shapely.geometry
 import shapely.affinity
 import shapely.ops
 
-from shapely.prepared import prep
-# from shapely.geometry import Point
+# pip install geojson
+import geojson  # https://pypi.org/project/geojson/
 
-# Camera in Atjestraat:
-# kijkhoek/sector 39 graden
-# bearing: 31 graden
-CAMERA_JSON = """
-{
-  "type": "Feature",
-  "properties": {
-    "angle": 38.876645504061116,
-    "bearing": 31.979981482645943,
-    "distance": 87.9921646359149
-  },
-  "geometry": {
-    "type": "GeometryCollection",
-    "geometries": [
-      {
-        "type": "Point",
-        "coordinates": [
-          4.646878838539124,
-          52.3969167956431
-        ]
-      },
-      {
-        "type": "LineString",
-        "coordinates": [
-          [
-            4.647177386477727,
-            52.39773567907421
-          ],
-          [
-            4.647953579015309,
-            52.39743995473123
-          ]
-        ]
-      }
-    ]
-  }
-}
-"""
-
-
-class BlikVeldException(BaseException):
-    pass
+from blikveld import adressen
 
 class BlikVeld:
 
     MIN_CAMERA_SCALE = 0.5
     MAX_CAMERA_SCALE = 5
+
+    OUTPUT_ADRES_PUNTEN = 0
+    OUTPUT_PAND_VLAKKEN = 1
+    OUTPUT_PAND_PUNTEN = 2
+
+    # Camera in Atjestraat:
+    # kijkhoek/sector 39 graden
+    # bearing: 31 graden
+    CAMERA_JSON = """
+    {
+      "type": "Feature",
+      "properties": {
+        "angle": 38.876645504061116,
+        "bearing": 31.979981482645943,
+        "distance": 87.9921646359149
+      },
+      "geometry": {
+        "type": "GeometryCollection",
+        "geometries": [
+          {
+            "type": "Point",
+            "coordinates": [
+              4.646878838539124,
+              52.3969167956431
+            ]
+          },
+          {
+            "type": "LineString",
+            "coordinates": [
+              [
+                4.647177386477727,
+                52.39773567907421
+              ],
+              [
+                4.647953579015309,
+                52.39743995473123
+              ]
+            ]
+          }
+        ]
+      }
+    }
+    """
 
     def show_in_geojson_io(self, geo_json):
         import urllib.parse
@@ -75,12 +75,23 @@ class BlikVeld:
         webbrowser.open(fp.name)
 
     def show_in_qgis(self, geo_json):
-        import tempfile
-        fp = tempfile.NamedTemporaryFile(suffix='.json', delete=False)
+
+        #import tempfile
+        #fp = tempfile.NamedTemporaryFile(suffix='.json', delete=False)
+
+        import pathlib
+        f = pathlib.Path(__file__).parent.absolute()
+        print(f)
+
+        ff = f.joinpath('result.json')
+        print(ff)
+        fp = open(ff, 'bw')
         fp.write(bytes(geo_json, 'utf-8'))
         fp.close()
+
         import subprocess
-        subprocess.run(['qgis', fp.name])  # note that his will NOT return untill you quit QGIS (set askToSaveMemoryLayers to False in QGIS to quickly quit)!!
+        #subprocess.run(['qgis', fp.name])  # note that his will NOT return untill you quit QGIS (set askToSaveMemoryLayers to False in QGIS to quickly quit)!!
+        subprocess.run(['qgis', f.joinpath('qgisproject.qgz')])  # note that his will NOT return untill you quit QGIS (set askToSaveMemoryLayers to False in QGIS to quickly quit)!!
 
     def azimuth_points(self, point1, point2):
         """azimuth between 2 shapely points """
@@ -104,54 +115,62 @@ class BlikVeld:
             method_vertex=True,
             method_beam=True,
 
-            show_result_centroids=True,
+            output=OUTPUT_ADRES_PUNTEN,    # BlikVeld.OUTPUT_ADRES_PUNTEN=0 BlikVeld.OUTPUT_PAND_VLAKKEN=1 BlikVeld.OUTPUT_PAND_PUNTEN=2
 
             show_input=False,
             show_cameras=False,
 
-            vertex_debug=False,  # if TRUE ALL 4 debug features below will be returned
-            show_vertex_handled_vertex=False,             # vertex_handled_vertex
-            show_vertex_viewpoint_line=False,             # vertex_viewpoint_line
-            show_vertex_vertex_hit=False,                 # vertex_vertex_hit
-            show_vertex_viewpoint_line_hit=False,         # vertex_viewpoint_line_hit
+            show_debug=False,  # if TRUE ALL debug features will be returned in result
+
+            show_vertex_debug=False,  # if TRUE ALL 4 debug features below will be returned
+            show_vertex_handled_vertex=False,  # vertex_handled_vertex
+            show_vertex_viewpoint_line=False,  # vertex_viewpoint_line
+            show_vertex_vertex_hit=False,  # vertex_vertex_hit
+            show_vertex_viewpoint_line_hit=False,  # vertex_viewpoint_line_hit
 
             beams=100,  # number of 'beams'
-            beam_debug=False,  # if TRUE ALL 4 debug features below will be returned
-            show_beam_beams=False,                       # beam
-            show_beam_intersection_linestring=False,     # beam_intersection_linestring
+            show_beam_debug=False,  # if TRUE ALL 4 debug features below will be returned
+            show_beam_beams=False,  # beam
+            show_beam_intersection_linestring=False,  # beam_intersection_linestring
             show_beam_intersection_nearest_point=False,  # beam_nearest_intersection_point
-            show_beam_intersection_point=False           # beam_intersection_point
+            show_beam_intersection_point=False  # beam_intersection_point
             ):
 
         if not camera_json:
-            camera_json = CAMERA_JSON
+            camera_json = self.CAMERA_JSON
 
         # input is a camera json
         camera = geojson.loads(camera_json)
         #print(camera)
 
+        from blikveld import exception
+
         if not ('geometry' in camera and 'geometries' in camera['geometry']):
-            raise BlikVeldException('Camera json should be valid geojson, and have a "geometry" with two "geometries" ')
+            raise exception.BlikVeldException('Camera json should be valid geojson, and have a "geometry" with two "geometries" ')
 
         if beams > 100.0 or beams < 1.0:
-            raise BlikVeldException('Number of beams should be between 1 and 100 (inclusive)')
+            raise exception.BlikVeldException('Number of beams should be between 1 and 100 (inclusive)')
 
         if not method_vertex and not method_beam:
-            raise BlikVeldException(f'At least one of the methods should be used: method_vertex (now: {method_vertex}) or method_beam (now: {method_beam})')
+            raise exception.BlikVeldException(f'At least one of the methods should be used: method_vertex (now: {method_vertex}) or method_beam (now: {method_beam})')
 
         if use_bag_panden and use_kadaster_bebouwing:
-            raise BlikVeldException(f'Use one dataset at a time, either Bag-panden (use_bag_panden is now {use_bag_panden}), or Kadadstralekaart-bebouwing (use_kadaster_bebouwing is now {use_kadaster_bebouwing})')
+            raise exception.BlikVeldException(f'Use one dataset at a time, either Bag-panden (use_bag_panden is now {use_bag_panden}), or Kadadstralekaart-bebouwing (use_kadaster_bebouwing is now {use_kadaster_bebouwing})')
 
         if camera_scale < self.MIN_CAMERA_SCALE or camera_scale > self.MAX_CAMERA_SCALE:
-            raise BlikVeldException(f'Factor "camera_scale"={camera_scale} which is not in range {self.MIN_CAMERA_SCALE} <= camers_scale <= {self.MAX_CAMERA_SCALE}')
+            raise exception.BlikVeldException(f'Factor "camera_scale"={camera_scale} which is not in range {self.MIN_CAMERA_SCALE} <= camers_scale <= {self.MAX_CAMERA_SCALE}')
 
-        if vertex_debug:
+        if show_debug:
+            show_vertex_debug = True
+            show_beam_debug = True
+
+        if show_vertex_debug:
             show_vertex_handled_vertex = True
             show_vertex_viewpoint_line = True
             show_vertex_vertex_hit = True
             show_vertex_viewpoint_line_hit = True
 
-        if beam_debug:
+        if show_beam_debug:
             show_beam_beams = True
             show_beam_intersection_linestring = True
             show_beam_intersection_nearest_point = True
@@ -166,7 +185,7 @@ class BlikVeld:
             elif gtype == 'linestring':
                 horizon = geom
             else:
-                raise BlikVeldException('Unknown geometry type in camera json')
+                raise exception.BlikVeldException('Unknown geometry type in camera json')
 
         # {"coordinates": [4.646879, 52.396917], "type": "Point"} {"coordinates": [[4.647177, 52.397736], [4.647954, 52.39744]], "type": "LineString"}
         #print(view_point['coordinates'], horizon['coordinates'])
@@ -213,7 +232,7 @@ class BlikVeld:
             # BAG WFS
             wfs_url = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1?'
             wfs_type = 'bag:pand'
-            wfs_timout = 1.5  # bag endpoint is fast!!
+            wfs_timout = 2.5  # bag endpoint is fast!!
 
         #spatial_filter = f'<Filter><Intersects> <PropertyName>Geometry</PropertyName><gml:Polygon srsName="urn:ogc:def:crs:EPSG::4326"><gml:exterior><gml:LinearRing><gml:posList>52.397328 4.647181 52.397753 4.648073 52.397237 4.648182 52.397328 4.647181</gml:posList></gml:LinearRing></gml:exterior></gml:Polygon></Intersects></Filter>'
         spatial_filter = f'<Filter><Intersects>' \
@@ -243,23 +262,24 @@ class BlikVeld:
         else:
             response = requests.get(wfs_url, params=params, timeout=wfs_timout)
             if 200 != response.status_code:
-                raise BlikVeldException(f'WFS url returned status {response.status_code}:\n{response.url}')
+                raise exception.BlikVeldException(f'WFS url returned status {response.status_code}:\n{response.url}')
             #print(r.url)
             input_feature_collection = geojson.loads(response.text)
             source_url = response.url
 
         feature_collection = geojson.FeatureCollection([])
-        feature_collection['metadata'] = {
+        metadata = {
             'show_input': show_input,
             'show_cameras': show_cameras,
-            'show_result_centroids': show_result_centroids,
             'method_vertex': method_vertex,
             'method_beam': method_beam,
             'use_bag_panden': use_bag_panden,
             'use_kadaster_bebouwing': use_kadaster_bebouwing,
-            'wfs_url': source_url,
-            'fetched': len(input_feature_collection.features)
+            'wfs_panden_url': source_url,
+            'panden_fetched': len(input_feature_collection.features)
         }
+
+
         # below can be use during development to see/use a specific panden json
         # with open('/tmp/panden.json', 'w') as f:
         #     geojson.dump(feature_collection, f, indent=2)
@@ -286,11 +306,11 @@ class BlikVeld:
             if 'gid' in feature.properties:  # BAG
                 shapely_dict[feature.properties['gid']] = shapely.geometry.shape(feature.geometry)
                 feature_dict[feature.properties['gid']] = feature
-            elif hasattr(feature, 'id'): # BEBOUWING
+            elif hasattr(feature, 'id'):  # BEBOUWING
                 shapely_dict[feature.id] = shapely.geometry.shape(feature.geometry)
                 feature_dict[feature.id] = feature
             else:
-                raise BlikVeldException(f'WFS url returned features without known primary key (tried "id" and "gid")')
+                raise exception.BlikVeldException(f'WFS url returned features without known primary key (tried "id" and "gid")')
 
         result_dict = {}
 
@@ -379,11 +399,11 @@ class BlikVeld:
                         nearest_intersection.properties['blikveld_type'] = 'beam_nearest_intersection_point'
                         feature_collection.features.insert(0, nearest_intersection)
 
-        feature_collection['metadata'].update({'hits': len(result_dict.keys()), 'scaled': camera_scale, 'camera': camera})
+        metadata.update({'panden_hits': len(result_dict.keys()), 'scaled': camera_scale, 'camera': camera})
 
-        #  now move results to feature_collection
-        # IF asked for result centroid, ONLY sent the centroids
-        if show_result_centroids:
+        # IF asked for result centroid, ONLY sent the feature centroids
+        if output == self.OUTPUT_PAND_PUNTEN:
+            metadata.update({'output': 'OUTPUT_PAND_PUNTEN'})
             for object_id in result_dict:
                 # create a new centroid feature WITH the properties of the original feature
                 centroid = shapely_dict[object_id].centroid  # returns a geojson.Point
@@ -391,16 +411,31 @@ class BlikVeld:
                 properties['blikveld_type'] = 'result_feature_centroid'
                 centroid_feature = geojson.feature.Feature(geometry=centroid, properties=properties)
                 feature_collection.features.insert(0, centroid_feature)
-        else:  # sent back the original features
+        elif output == self.OUTPUT_ADRES_PUNTEN:  # defaulting to: BlikVeld.OUTPUT_ADRES_PUNTEN
+            ids = []
+            for object_id in result_dict.keys():
+                ids.append(feature_dict[object_id].properties['identificatie'])
+            geojson_adressen = adressen.Adressen().get_via_bebouwing_wfs(ids)
+            for feature in geojson_adressen.features:
+                feature.properties['blikveld_type'] = 'result_adres_verblijfsobject'
+                feature_collection.features.insert(0, feature)
+            metadata.update({'adressen_hits': len(geojson_adressen.features), 'output': 'OUTPUT_ADRES_PUNTEN'})
+
+        if output == self.OUTPUT_PAND_VLAKKEN:  # TODO: or debug !!
+            # sent back the result features (polygons)
+            metadata.update({'output': 'OUTPUT_PAND_VLAKKEN'})
             for object_id in result_dict:
-                feature_collection.features.insert(0, result_dict[object_id])
+                feature = result_dict[object_id]
+                feature.properties['blikveld_type'] = 'result_pand'
+                feature_collection.features.insert(0, feature)
 
         # add both original camera and resized camera to the feature_collection(result)
         if show_cameras:
             feature_collection.features.insert(0, camera_feature)
-            #if camera_scale != 1.00:
-            feature_collection.features.insert(0, resized_camera_feature)
+            if camera_scale != 1.00:
+                feature_collection.features.insert(0, resized_camera_feature)
 
+        # optional: add input (original camera features)
         if show_input:
             for feature in input_feature_collection.features:
                 properties = dict(feature.properties)
@@ -408,40 +443,43 @@ class BlikVeld:
                 f = geojson.feature.Feature(geometry=feature.geometry, properties=properties)
                 feature_collection.features.insert(0, f)
 
+        feature_collection['metadata'] = metadata
         return geojson.dumps(feature_collection)
 
 if __name__ == '__main__':
     b = BlikVeld()
-    r = b.run()
-    # r = b.run(camera_json=None,
-    #           camera_scale=1.3,
-    #
-    #           use_bag_panden=True,
-    #           use_kadaster_bebouwing=False,
-    #
-    #           method_vertex=True,
-    #           method_beam=True,
-    #
-    #           show_result_centroids=True,
-    #
-    #           show_input=True,
-    #           show_cameras=True,
-    #
-    #           vertex_debug=True,  # if TRUE ALL 4 debug features below will be returned
-    #           show_vertex_handled_vertex=True,             # vertex_handled_vertex
-    #           show_vertex_viewpoint_line=True,             # vertex_viewpoint_line
-    #           show_vertex_vertex_hit=True,                 # vertex_vertex_hit
-    #           show_vertex_viewpoint_line_hit=True,         # vertex_viewpoint_line_hit
-    #
-    #           beams=50,  # number of 'beams'
-    #           beam_debug=True,  # if TRUE ALL 4 debug features below will be returned
-    #           show_beam_beams=False,                       # beam
-    #           show_beam_intersection_linestring=False,     # beam_intersection_linestring
-    #           show_beam_intersection_nearest_point=False,  # beam_nearest_intersection_point
-    #           show_beam_intersection_point=False           # beam_intersection_point
-    #           )
+    #r = b.run()
+    r = b.run(camera_json=None,
+              camera_scale=1.3,
+
+              use_bag_panden=True,
+              use_kadaster_bebouwing=False,
+
+              method_vertex=True,
+              method_beam=True,
+
+              output=BlikVeld.OUTPUT_ADRES_PUNTEN,
+
+              show_input=True,
+              show_cameras=True,
+
+              show_debug=True,
+
+              show_vertex_debug=True,  # if TRUE ALL 4 debug features below will be returned
+              show_vertex_handled_vertex=True,             # vertex_handled_vertex
+              show_vertex_viewpoint_line=True,             # vertex_viewpoint_line
+              show_vertex_vertex_hit=True,                 # vertex_vertex_hit
+              show_vertex_viewpoint_line_hit=True,         # vertex_viewpoint_line_hit
+
+              beams=50,  # number of 'beams'
+              show_beam_debug=True,  # if TRUE ALL 4 debug features below will be returned
+              show_beam_beams=False,                       # beam
+              show_beam_intersection_linestring=False,     # beam_intersection_linestring
+              show_beam_intersection_nearest_point=False,  # beam_nearest_intersection_point
+              show_beam_intersection_point=False           # beam_intersection_point
+              )
     feature_collection = geojson.loads(r)
-    print(feature_collection.metadata)
+    #print(feature_collection.metadata)
     #b.show_in_browser(r)
     #b.show_in_geojson_io(r)
     b.show_in_qgis(r)
