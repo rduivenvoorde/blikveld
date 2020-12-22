@@ -215,7 +215,9 @@ button{
   </tr>
 </table>
 
-<p>Gebruik de Submit GET knop om de GET parameters en de url te kunnen zien in de browser</p>
+<p>Gebruik de 'Verstuur (GET)'-knop om de GET parameters en de url te kunnen zien in de browser.
+De api zelf werkt zowel met POST als GET.
+</p>
 
 <h2>Probeer het zelf</h2>
 
@@ -235,6 +237,8 @@ button{
     <option value="4">4</option>
     <option value="5">5</option>
     <option value="0.5">0.5</option>
+    <option value="0.6">0.6</option>
+    <option value="0.7">0.7</option>
   </select>
 
   <p class="smaller">
@@ -279,7 +283,7 @@ button{
   
   <p class="smaller">Kijkt of er onbelemmerd zicht is van hoekpunten panden naar camerastandpunt.</p>
 
-  <input type="checkbox" id="method_beam" name="method_beam" checked> <label>Gebruik methode 'beam'</label>
+  <input type="checkbox" id="method_beam" name="method_beam" checked> <label>Gebruik 'beam' methode (method_beam)</label>
   
   <p class="smaller">Trekt stralen vanuit het camerastandpunt en kijkt of ze tegen een pand 'botsen'. De beste resultaten krijg je door zowel de 'beam' als de 'vertex' methode te gebruiken.</p>
 
@@ -288,9 +292,11 @@ button{
   <p class="smaller">Hiermee krijg je ALLE features terug die hebben meegedaan in de analyses: 'beams', 'vertices', opgehaalde panden etc etc: VEEL!</p>
 
   <p>
-    <button type="submit" onclick="document.getElementById('testform').method='POST';">Submit POST</button>
+    <button type="submit" onclick="document.getElementById('testform').method='POST';">Verstuur (POST)</button>
     <br/>
-    <button type="submit" onclick="document.getElementById('testform').method='GET';">Submit GET</button> <label>Hiermee zie je de url in de browser</label>
+    <br/>
+    <button type="submit" onclick="document.getElementById('testform').method='GET';">Verstuur (GET)</button>
+    <p class="smaller">Met de GET knop zie je de met dit formulier opgebouwde url in de browser</p>
   </p>
 
   </div>
@@ -353,17 +359,33 @@ Het script gebruikt twee manieren om te kijken of er ongehinderd zicht is tussen
     <p>
       Nadeel van deze methode is, dat je panden kunt 'missen' als je erg schuin een straat in kijkt. Als een gevel vrijwel parralel loopt aan de stralen is de kans niet onverwaarloosbaar dat de gevel tussen twee stralen in valt en dus niet geraakt wordt.
     </p>
+    <p>
+      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/beam_intersections?raw=true" />
+    </p>
+    <p>
+      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/beam_hits?raw=true" />
+    </p>
   </li>
   <li>
     <h3>Vertex</h3>
     <p>
-      De vertex methode werkt andersom en neemt de panden die binnen de driehoek vallen als uitgangspunt. Vanuit elk coördinaat in de polygoon van elk pand wordt een lijn getrokken naar het camerastandpunt, en vervolgens wordt gekeken of die lijn onderweg niet een ander pand raakt.
+      De vertex methode werkt andersom en neemt de hoekpunten van de panden die binnen de driehoek vallen als uitgangspunt. Vanuit elk coördinaat in de polygoon van elk pand wordt een lijn getrokken naar het camerastandpunt, en vervolgens wordt gekeken of die lijn onderweg niet een ander pand raakt.
+    </p>
+    <p>
+      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/vertex_hits?raw=true" />
     </p>
     <p>
       Ook als je heel schuin een straat in kijkt wordt elk pand (voor zover dat tenminste niet ergens achter ligt) zo keurig meegenomen.
     </p>
     <p>
       Stel je nu voor dat je vanuit straat A naar een t-splitsing kijkt, en dat aan straat B, waar je tegenaan kijkt, een breed pand ligt. Het kan best dat de hoeken van dat pand niet zichtbaar zijn door de bebouwing in straat A, terwijl de rest van het pand toch prominent in beeld is. Of dat de fotograaf zo dicht op een pand stond dat er überhaupt geen hoeken op de foto terecht zijn gekomen. Dan is het goed om terug te kunnen vallen op methode 'beam'.
+    </p>
+    <p>
+      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/broodfabriekpoort_vertex?raw=true" />
+    </p>
+    <p>
+      De beam-methode (hier met 'maar' 20 beams (standaard 100) werkt wel:
+      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/broodfabriekpoort_beam?raw=true" />
     </p>
   </li>
 </ul>

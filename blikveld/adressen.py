@@ -50,6 +50,8 @@ class Adressen:
             for bag_id in bag_ids_stringlist:
                 property_filter = property_filter + f'<PropertyIsEqualTo><PropertyName>bag:pandidentificatie</PropertyName><Literal>{bag_id}</Literal></PropertyIsEqualTo>'
             property_filter = property_filter + '</Or>'
+        elif len(bag_ids_stringlist) == 0:
+            raise BlikVeldException(f'Trying to find BAG adressen, but empty Pand list: {bag_ids_stringlist}')
         else:
             raise BlikVeldException(f'Something Wrong with the bag id parameters: {bag_ids_stringlist}')
         

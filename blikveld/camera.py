@@ -81,10 +81,9 @@ class BlikVeld:
 
         import pathlib
         f = pathlib.Path(__file__).parent.absolute()
-        print(f)
-
+        #print(f)
         ff = f.joinpath('result.json')
-        print(ff)
+        #print(ff)
         fp = open(ff, 'bw')
         fp.write(bytes(geo_json, 'utf-8'))
         fp.close()
