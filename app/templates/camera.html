@@ -6,13 +6,16 @@
 
 body {
   margin: 40px 10%;
-  font-family: Garamond, serif;
+  font-family: Helvetica, sans-serif;
   background-color: #fff;
   color: #444;
   font-size: 20px;
 }
 h1, h2, h3, label, td{
-  font-family: Helvetica, sans-serif;
+}
+a{
+  color: #AE4A4C;
+  text-decoration: none;
 }
 .wrapper {
   margin: 0 20px;
@@ -36,10 +39,12 @@ h1, h2, h3, label, td{
 }
 
 .wrapper > * {
-  background-color: #e4e1f0;
   padding: 20px;
   /* needed for the floated layout*/
   margin-bottom: 10px;
+}
+form{
+  background-color: #e4e1f0;
 }
 textarea{
   width: 100%;
@@ -55,6 +60,15 @@ td{
   padding: 8px 20px 8px 0;
   font-size: 16px;
 }
+img{
+  width: 100%;
+}
+.intro{
+  background-color: #F7F7F6;
+}
+.smaller{
+  font-size: 0.7em;
+}
 
 
 </style>
@@ -65,11 +79,29 @@ td{
   <h1>Blikveld2BAG</h1>
 </div>
 
-<p>
-  De Blikveld2BAG API geeft de panden terug die binnen een blikveld vallen. Zo'n blikveld is een driehoekje waarvan 1 hoek het camerastandpunt is. Voor de New York Public Library maakte Bert Spaan een <a href="http://spacetime.nypl.org/Leaflet.GeotagPhoto/examples/camera.html">tooltje om zo'n blikveld mee te tekenen</a>. De output van dat tooltje dient als de input voor deze api.
-</p>
+<div class="wrapper">
+  <div class="intro">
+    <p>
+      De Blikveld2BAG API geeft de panden (en adressen) terug die binnen een blikveld vallen. Voor de New York Public Library maakte Bert Spaan eerder een <a href="http://spacetime.nypl.org/Leaflet.GeotagPhoto/examples/camera.html">tooltje om zo'n blikveld mee te tekenen</a>. De output van dat tooltje dient als de input voor deze api.
+    </p>
+    <p>
+      De API geeft alleen de panden terug die daadwerkelijk in zicht staan, panden die achter andere panden staan worden niet teruggegeven.
+    </p>
+    <p>
+      Bouwjaren worden meegegeven, zodat je desgewenst rekening kunt houden met het moment waarop een foto is genomen.
+    </p>
+    <p>
+      Onder het kopje <a href="#hoehetwerkt">Hoe het werkt</a> meer over ... hoe het werkt.
+    </p>
+  </div>
+  <div class="intro">
+    <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/blikveld2bag.png?raw=true" />
+    <p class="smaller">
+      Code door <a href="http://zuidt.nl/">Richard Duivenvoorde</a>, mentaal terzijde gestaan door <a href="http://islandsofmeaning.nl/">Menno den Engelse</a>, mede mogelijk gemaakt door een financiële bijdrage van het <a href="https://noord-hollandsarchief.nl/">Noord-Hollands Archief</a>, code op <a href="https://github.com/rduivenvoorde/blikveld">GitHub</a>. 
+    </p>
+  </div> 
+</div>
 
-[hier een afbeelding invoegen, misschien links een blikveld -> rechts de gevonden panden] <br />
 
 <h2>Parameters</h2>
 <table>
@@ -141,41 +173,52 @@ td{
     <option value="0.5">0.5</option>
   </select>
 
-  <p>
-    De <code>camera_scale</code> verlengt het blikveld. Als je denkt dat mensen het blikveld wat 'kort' getrokken hebben, kan je het met dit getal 'verlengen'.
+  <p class="smaller">
+    Verlengt het blikveld. Als je denkt dat mensen het blikveld wat 'kort' getrokken hebben, kan je het met dit getal 'verlengen'. Andersom kan ook natuurlijk.
   </p>
-
-  <br/>
   <!--<label>WFS Data source</label>
   <select name="datasource" id="datasource">
     <option value="use_bag_panden">BAG Panden</option>
     <option value="use_kadaster_bebouwing">Kadaster Bebouwing</option>
   </select>
   <br/>-->
-  <label>Output</label>
-  <select name="output">
+  <label>Output</label><br />
+
+  <select name="output" style="width: 50%;">
     <option value="output_adres_punten">Adres Punten</option>
     <option value="output_pand_vlakken">Pand Vlakken</option>
     <option value="output_pand_punten">Pand Punten</option>
   </select>
-  <br/>
-  <label>Format</label>
-  <select name="format">
+
+  <p class="smaller">Wil je punten van BAG adressen, vlakken van BAG panden of de middenpunten van die vlakken?</p>
+
+  <label>Format</label><br />
+
+  <select name="format" style="width: 50%;">
     <option value="format_geojson">GeoJson</option>
     <option value="format_geojson_io">geojson.io</option>
     <option value="format_geojson_html">Geojson in HTML</option>
     <option value="format_qgis">QGIS (alleen lokaal mogelijk)</option>
   </select>
-  <br/>
-  <br/>
-  <label>Show Camera's</label><input type="checkbox" id="show_cameras" name="show_cameras" checked>
-  <br/>
-  <label>Show input features</label><input type="checkbox" id="show_input" name="show_input">
-  <br/>
-  <label>Use method 'vertex'</label><input type="checkbox" id="method_vertex" name="method_vertex" checked>
-  <br/>
-  <label>Use method 'beam'</label><input type="checkbox" id="method_beam" name="method_beam" checked>
-  <br/>
+
+  <p class="smaller">Wil je de kale GeoJson of de resultaten meteen bekijken?</p>
+
+  <input type="checkbox" id="show_cameras" name="show_cameras" checked> <label>Show Camera's</label>
+
+  <p class="smaller">Wil je het blikveld driehoekje als geometrie opgenomen hebben in het resultaat?</p>
+  
+  <input type="checkbox" id="show_input" name="show_input"> <label>Show input features</label>
+
+  <p class="smaller">Toont alle panden die binnen het driehoekje vallen, waarvan later berekend wordt of ze zichtbaar zijn.</p>
+
+  <input type="checkbox" id="method_vertex" name="method_vertex" checked> <label>Use method 'vertex'</label>
+  
+  <p class="smaller"></p>
+
+  <input type="checkbox" id="method_beam" name="method_beam" checked> <label>Use method 'beam'</label>
+  
+  <p class="smaller"></p>
+
   <!-- TODO <label>Show Debug Information</label><input type="checkbox" id="show_debug" name="show_debug">
   <br/>-->
 
@@ -228,4 +271,4 @@ td{
 
 </form>
 
-<h2>Hoe het werkt</h2>
+<h2 id="hoehetwerkt">Hoe het werkt</h2>
