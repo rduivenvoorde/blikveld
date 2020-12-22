@@ -347,23 +347,47 @@ De api zelf werkt zowel met POST als GET.
 
 <h2 id="hoehetwerkt">Hoe het werkt</h2>
 
+<p>
+  Op basis van de 'camera-driehoek' worden eerst uit de BAG alle panden opgehaald en geanalyseerd.
+  Desgewenst worden daarna van de resultaat-panden nog de adressen opgehaald.
+</p>
 
-Het script gebruikt twee manieren om te kijken of er ongehinderd zicht is tussen pand en camerastandpunt: de 'beam' methode en de 'vertex' methode. Beide manieren hebben zo hun voordelen en nadelen, maar als ze samen gebruikt worden vullen ze elkaar prima aan.
+<p>
+  Het script retourneert eigenlijk altijd <a href="https://geojson.org/">GeoJSON</a> of een json met een foutmelding.
+</p>
+
+<p>
+Het script gebruikt twee manieren om te kijken of er ongehinderd zicht is tussen pand en camerastandpunt:
+  de 'beam' methode en de 'vertex' methode. Beide manieren hebben zo hun voordelen en nadelen, maar als ze samen gebruikt worden vullen ze elkaar prima aan.
+</p>
 
 <ul>
   <li>
     <h3>Beam</h3>
     <p>
-      Op de tegenover het camerastandpunt gelegen zijde van de blikvelddriehoek worden 100 puntjes gezet, en tussen die puntjes en het camerastandpunt worden stralen getekend. Van elk van die stralen wordt gekeken welke panden doorsneden worden, en of er tussen dat snijpunt en het camerastandpunt een ander pand ligt dat het zicht belemmert.
+      Op de tegenover het camerastandpunt gelegen zijde van de blikvelddriehoek worden 100 puntjes gezet (het plaatje hieronder ter illustratie 'maar' 20),
+      en tussen die puntjes en het camerastandpunt worden stralen getekend. Van elk van die stralen wordt gekeken welke panden doorsneden worden,
+      en of er tussen dat snijpunt en het camerastandpunt een ander pand ligt dat het zicht belemmert. Anders gezegd: het pand met dichtsbij-liggende snijpunt wordt geselecteerd.
     </p>
     <p>
-      Nadeel van deze methode is, dat je panden kunt 'missen' als je erg schuin een straat in kijkt. Als een gevel vrijwel parralel loopt aan de stralen is de kans niet onverwaarloosbaar dat de gevel tussen twee stralen in valt en dus niet geraakt wordt.
+      Nadeel van deze methode is, dat je panden kunt 'missen' als je erg schuin een straat in kijkt: in de figuren wordt nummer 24 gemist. Als een gevel vrijwel parallel loopt aan de stralen is de kans niet onverwaarloosbaar dat de gevel tussen twee stralen in valt en dus niet geraakt wordt.
     </p>
     <p>
-      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/beam_intersections.png?raw=true" />
+      Onderstaande figuren tonen alle 'debug' informatie uit de analyse:
+      <li>De driehoek van de camera: de grijze driehoek</li>
+      <li>Alle panden die ermee overlappen: de niet gevulde blauwe vlakken.</li>
+      <li>De "beams's" (in dit geval slechts 20): de groene lijntjes</li>
+      <li>Alle panddoorsnijdingen: de rode lijntjes</li>
+      <li>Alle doorsnijdingspunten die meedoen: de kleinste oranje puntjes</li>
+      <li>De geselecteerde (meest dichtbij) gelegen daarvan: de kleine rode puntjes</li>
+      <li>De op basis daarvan geselecteerde panden: de blauwe gevulde vlakken</li>
+      <li>Op basis waarvan de adressen zijn opgehaald: de grote ronde punten</li>
     </p>
     <p>
       <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/beam_hits.png?raw=true" />
+    </p>
+    <p>
+      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/beam_intersections.png?raw=true" />
     </p>
   </li>
   <li>
@@ -372,19 +396,31 @@ Het script gebruikt twee manieren om te kijken of er ongehinderd zicht is tussen
       De vertex methode werkt andersom en neemt de hoekpunten van de panden die binnen de driehoek vallen als uitgangspunt. Vanuit elk coördinaat in de polygoon van elk pand wordt een lijn getrokken naar het camerastandpunt, en vervolgens wordt gekeken of die lijn onderweg niet een ander pand raakt.
     </p>
     <p>
+      Onderstaande figuur toont alle 'debug' informatie uit de analyse:
+      <li>De driehoek van de camera: de grijze driehoek</li>
+      <li>Alle panden die ermee overlappen: de niet gevulde blauwe vlakken.</li>
+      <li>Alle hoekpuntjes binnen de camera die meedoen: de kleine paarse puntjes</li>
+      <li>Alle kijklijnen, van standpunt naar hoekpuntjes: de rode lijntjes</li>
+      <li>De geselecteerde (meest dichtbij) gelegen punten 'in het zicht': de groene puntjes</li>
+      <li>De op basis daarvan geselecteerde panden: de blauwe gevulde vlakken</li>
+      <li>Op basis waarvan de adressen zijn opgehaald: de grote ronde punten</li>
+    </p>
+    <p>
       <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/vertex_hits.png?raw=true" />
     </p>
     <p>
       Ook als je heel schuin een straat in kijkt wordt elk pand (voor zover dat tenminste niet ergens achter ligt) zo keurig meegenomen.
     </p>
     <p>
-      Stel je nu voor dat je vanuit straat A naar een t-splitsing kijkt, en dat aan straat B, waar je tegenaan kijkt, een breed pand ligt. Het kan best dat de hoeken van dat pand niet zichtbaar zijn door de bebouwing in straat A, terwijl de rest van het pand toch prominent in beeld is. Of dat de fotograaf zo dicht op een pand stond dat er überhaupt geen hoeken op de foto terecht zijn gekomen. Dan is het goed om terug te kunnen vallen op methode 'beam'.
+      Stel je nu voor dat je vanuit straat A naar een t-splitsing kijkt, en dat aan straat B, waar je tegenaan kijkt, een breed pand ligt. Het kan best dat de hoeken van dat pand niet zichtbaar zijn door de bebouwing in straat A, terwijl de rest van het pand toch prominent in beeld is. Of dat de fotograaf zo dicht op een pand stond dat er überhaupt geen hoeken op de foto terecht zijn gekomen. Hieronder zo'n geval.
     </p>
     <p>
       <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/broodfabriekpoort_vertex.png?raw=true" />
     </p>
     <p>
-      De beam-methode (hier met 'maar' 20 beams (standaard 100) werkt wel:
+      De beam-methode (hier met 'maar' 20 beams (standaard 100)) werkt dan wel:
+    </p>
+    <p>
       <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/broodfabriekpoort_beam.png?raw=true" />
     </p>
   </li>
