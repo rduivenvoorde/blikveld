@@ -29,3 +29,39 @@ beam method
 (-> result)
 (-> result centroids)
 -> result adressen
+
+
+Kleine Atjehstraat
+{
+  "type": "Feature",
+  "properties": {
+    "angle": 51.30974477732059,
+    "bearing": 24.290854034061127,
+    "distance": 45.137959206625936
+  },
+  "geometry": {
+    "type": "GeometryCollection",
+    "geometries": [
+      {
+        "type": "Point",
+        "coordinates": [
+          4.646959304809571,
+          52.39697898834532
+        ]
+      },
+      {
+        "type": "LineString",
+        "coordinates": [
+          [
+            4.646941742066716,
+            52.397429049136846
+          ],
+          [
+            4.647524037133451,
+            52.39726868904346
+          ]
+        ]
+      }
+    ]
+  }
+}

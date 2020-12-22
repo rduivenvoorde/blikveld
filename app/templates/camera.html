@@ -360,10 +360,10 @@ Het script gebruikt twee manieren om te kijken of er ongehinderd zicht is tussen
       Nadeel van deze methode is, dat je panden kunt 'missen' als je erg schuin een straat in kijkt. Als een gevel vrijwel parralel loopt aan de stralen is de kans niet onverwaarloosbaar dat de gevel tussen twee stralen in valt en dus niet geraakt wordt.
     </p>
     <p>
-      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/beam_intersections?raw=true" />
+      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/beam_intersections.png?raw=true" />
     </p>
     <p>
-      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/beam_hits?raw=true" />
+      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/beam_hits.png?raw=true" />
     </p>
   </li>
   <li>
@@ -372,7 +372,7 @@ Het script gebruikt twee manieren om te kijken of er ongehinderd zicht is tussen
       De vertex methode werkt andersom en neemt de hoekpunten van de panden die binnen de driehoek vallen als uitgangspunt. Vanuit elk coördinaat in de polygoon van elk pand wordt een lijn getrokken naar het camerastandpunt, en vervolgens wordt gekeken of die lijn onderweg niet een ander pand raakt.
     </p>
     <p>
-      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/vertex_hits?raw=true" />
+      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/vertex_hits.png?raw=true" />
     </p>
     <p>
       Ook als je heel schuin een straat in kijkt wordt elk pand (voor zover dat tenminste niet ergens achter ligt) zo keurig meegenomen.
@@ -381,11 +381,11 @@ Het script gebruikt twee manieren om te kijken of er ongehinderd zicht is tussen
       Stel je nu voor dat je vanuit straat A naar een t-splitsing kijkt, en dat aan straat B, waar je tegenaan kijkt, een breed pand ligt. Het kan best dat de hoeken van dat pand niet zichtbaar zijn door de bebouwing in straat A, terwijl de rest van het pand toch prominent in beeld is. Of dat de fotograaf zo dicht op een pand stond dat er überhaupt geen hoeken op de foto terecht zijn gekomen. Dan is het goed om terug te kunnen vallen op methode 'beam'.
     </p>
     <p>
-      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/broodfabriekpoort_vertex?raw=true" />
+      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/broodfabriekpoort_vertex.png?raw=true" />
     </p>
     <p>
       De beam-methode (hier met 'maar' 20 beams (standaard 100) werkt wel:
-      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/broodfabriekpoort_beam?raw=true" />
+      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/broodfabriekpoort_beam.png?raw=true" />
     </p>
   </li>
 </ul>
