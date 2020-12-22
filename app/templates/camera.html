@@ -71,7 +71,7 @@ td{
 
 [hier een afbeelding invoegen, misschien links een blikveld -> rechts de gevonden panden] <br />
 
-<h2>Parameters</h2>
+<h2>Verplichte Parameter</h2>
 <table>
   <tr>
     <td>
@@ -84,6 +84,9 @@ td{
       De geojson moet een GeometryCollection bevatten met een punt (het camerastandpunt) en een lijn (de tegenovergelegen zijde waarmee het blikveld wordt uitgedrukt), zoals het <a href="http://spacetime.nypl.org/Leaflet.GeotagPhoto/examples/camera.html">NYPL tooltje</a> die maakt.
     </td>
   </tr>
+</table>
+<h2>Optionele Parameters</h2>
+<table>
   <tr>
     <td>
       <strong>camera_scale</strong>
@@ -128,7 +131,7 @@ td{
 
   <div class="params">
 
-  <label>Camera scale</label><br />
+  <label>Camera-schaal (camera_scale)</label><br />
 
   <select name="camera_scale" id="camera_scale" style="width: 50%;">
     <option value="1">1</option>
@@ -142,7 +145,7 @@ td{
   </select>
 
   <p>
-    De <code>camera_scale</code> verlengt het blikveld. Als je denkt dat mensen het blikveld wat 'kort' getrokken hebben, kan je het met dit getal 'verlengen'.
+    De <code>camera_scale</code> verlengt (of verkort) het blikveld. Als je denkt dat mensen het blikveld wat 'kort' getrokken hebben, kan je het met dit getal veranderen.
   </p>
 
   <br/>
@@ -168,17 +171,19 @@ td{
   </select>
   <br/>
   <br/>
-  <label>Show Camera's</label><input type="checkbox" id="show_cameras" name="show_cameras" checked>
+  <label>Toon Camera's (show_cameras)</label><input type="checkbox" id="show_cameras" name="show_cameras" checked>
   <br/>
-  <label>Show input features</label><input type="checkbox" id="show_input" name="show_input">
+  <label>Toon Input Features (show_input)</label><input type="checkbox" id="show_input" name="show_input">
   <br/>
-  <label>Use method 'vertex'</label><input type="checkbox" id="method_vertex" name="method_vertex" checked>
+  <label>Gebruik 'vertex' methode (method_vertex)</label><input type="checkbox" id="method_vertex" name="method_vertex" checked>
   <br/>
-  <label>Use method 'beam'</label><input type="checkbox" id="method_beam" name="method_beam" checked>
+  <label>Gebruik 'beam' methode (method_beam)</label><input type="checkbox" id="method_beam" name="method_beam" checked>
   <br/>
-  <!-- TODO <label>Show Debug Information</label><input type="checkbox" id="show_debug" name="show_debug">
-  <br/>-->
-
+  <label>Retourneer Debug Features (show_debug)</label><input type="checkbox" id="show_debug" name="show_debug">
+  <br/>
+  <br/>
+  <label>Door de GET knop te gebruiken kun je de uitgevoerde URL bekijken in de browser</label>
+  <br/>
   <button type="submit" onclick="document.getElementById('testform').method='POST';">Submit POST</button>
   <button type="submit" onclick="document.getElementById('testform').method='GET';">Submit GET</button>
 

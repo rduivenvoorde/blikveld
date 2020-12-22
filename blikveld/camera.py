@@ -135,7 +135,6 @@ class BlikVeld:
             show_beam_intersection_nearest_point=False,  # beam_nearest_intersection_point
             show_beam_intersection_point=False  # beam_intersection_point
             ):
-
         if not camera_json:
             camera_json = self.CAMERA_JSON
 
@@ -161,6 +160,7 @@ class BlikVeld:
             raise exception.BlikVeldException(f'Factor "camera_scale"={camera_scale} which is not in range {self.MIN_CAMERA_SCALE} <= camers_scale <= {self.MAX_CAMERA_SCALE}')
 
         if show_debug:
+            show_input = True
             show_vertex_debug = True
             show_beam_debug = True
 
@@ -276,9 +276,10 @@ class BlikVeld:
             'use_bag_panden': use_bag_panden,
             'use_kadaster_bebouwing': use_kadaster_bebouwing,
             'wfs_panden_url': source_url,
-            'panden_fetched': len(input_feature_collection.features)
+            'wfs_panden_data': params,
+            'panden_fetched': len(input_feature_collection.features),
+            'show_debug': show_debug
         }
-
 
         # below can be use during development to see/use a specific panden json
         # with open('/tmp/panden.json', 'w') as f:
@@ -320,8 +321,7 @@ class BlikVeld:
                     # only vertices WITHIN the camera triangle
                     if not resized_camera_triangle.contains(shapely.geometry.Point(vertex)):
                         continue
-
-                    if show_vertex_handled_vertex:
+                    if show_vertex_handled_vertex and resized_camera_triangle.contains(shapely.geometry.Point(vertex)):
                         feature_collection.features.insert(0, geojson.feature.Feature(geometry=geojson.Point(vertex), properties={'id': f'{object_id}', 'blikveld_type': 'vertex_handled_vertex'}))
                     line = shapely.geometry.LineString([vertex, view_point.coordinates])
                     if show_vertex_viewpoint_line:
@@ -339,7 +339,7 @@ class BlikVeld:
                         if show_vertex_viewpoint_line_hit:
                             feature_collection.features.insert(0, geojson.feature.Feature(geometry=line, properties={'id': f'{object_id}', 'blikveld_type': 'vertex_viewpoint_line_hit'}))
                         result_dict[object_id] = feature_dict[object_id]
-                        break
+                        #break
 
         if method_beam:
             horizon = shapely.geometry.LineString([horizon['coordinates'][0], horizon['coordinates'][1]])
@@ -415,13 +415,17 @@ class BlikVeld:
             ids = []
             for object_id in result_dict.keys():
                 ids.append(feature_dict[object_id].properties['identificatie'])
-            geojson_adressen = adressen.Adressen().get_via_bebouwing_wfs(ids)
+            adressen_worker = adressen.Adressen()
+            geojson_adressen = adressen_worker.get_via_bebouwing_wfs(ids)
             for feature in geojson_adressen.features:
                 feature.properties['blikveld_type'] = 'result_adres_verblijfsobject'
                 feature_collection.features.insert(0, feature)
-            metadata.update({'adressen_hits': len(geojson_adressen.features), 'output': 'OUTPUT_ADRES_PUNTEN'})
+            metadata.update({'adressen_hits': len(geojson_adressen.features),
+                             'output': 'OUTPUT_ADRES_PUNTEN',
+                             'wfs_adressen_url': adressen_worker.url,
+                             'wfs_addressen_data': adressen_worker.data})
 
-        if output == self.OUTPUT_PAND_VLAKKEN:  # TODO: or debug !!
+        if output == self.OUTPUT_PAND_VLAKKEN or show_debug:
             # sent back the result features (polygons)
             metadata.update({'output': 'OUTPUT_PAND_VLAKKEN'})
             for object_id in result_dict:
@@ -463,7 +467,7 @@ if __name__ == '__main__':
               show_input=True,
               show_cameras=True,
 
-              show_debug=True,
+              show_debug=False,
 
               show_vertex_debug=True,  # if TRUE ALL 4 debug features below will be returned
               show_vertex_handled_vertex=True,             # vertex_handled_vertex
@@ -479,7 +483,7 @@ if __name__ == '__main__':
               show_beam_intersection_point=False           # beam_intersection_point
               )
     feature_collection = geojson.loads(r)
-    #print(feature_collection.metadata)
-    #b.show_in_browser(r)
+    print(feature_collection.metadata)
+    b.show_in_browser(r)
     #b.show_in_geojson_io(r)
-    b.show_in_qgis(r)
+    #b.show_in_qgis(r)

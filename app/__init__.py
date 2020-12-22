@@ -5,6 +5,7 @@ from flask import redirect
 from flask import url_for
 
 from blikveld.camera import BlikVeld
+from blikveld.exception import BlikVeldException
 
 app = Flask(__name__)
 
@@ -48,13 +49,20 @@ def api():
     if 'show_cameras' in request.values:
         if request.values['show_cameras'].upper() in ('1', 'ON', 'TRUE'):
             show_cameras = True
-    # TODO !!
-    method_vertex = True
-    # if 'method_vertex' not in request.values:
-    #     method_vertex = False  # request.values['method_vertex']
-    method_beam = True
-    # if 'method_beam' not in request.values:
-    #     method_beam = False  # request.values['method_beam']
+    show_debug = False
+    if 'show_debug' in request.values:
+        if request.values['show_debug'].upper() in ('1', 'ON', 'TRUE'):
+            show_debug = True
+    method_vertex = False
+    if 'method_vertex' in request.values:
+        #print(f"'method_vertex' in request.values: {request.values['method_vertex'].upper()}")
+        if request.values['method_vertex'].upper() in ('1', 'ON', 'TRUE'):
+            method_vertex = True  # request.values['method_vertex']
+    method_beam = False
+    if 'method_beam' in request.values:
+        #print(f"'method_beam' in request.values: {request.values['method_beam'].upper()}")
+        if request.values['method_beam'].upper() in ('1', 'ON', 'TRUE'):
+            method_beam = True  # request.values['method_vertex']
 
     # use_bag_panden = True
     # use_kadaster_bebouwing = False
@@ -65,14 +73,46 @@ def api():
     #         use_bag_panden = True
 
     b = BlikVeld()
-    result_json = b.run(camera_json=camera_json,
-                        camera_scale=camera_scale,
-                        output=output,
-                        show_cameras=show_cameras,
-                        show_input=show_input,
-                        method_vertex=method_vertex,
-                        method_beam=method_beam,
-                        use_bag_panden=True)
+
+    try:
+        result_json = b.run(camera_json=camera_json,
+                            camera_scale=camera_scale,
+                            output=output,
+                            show_cameras=show_cameras,
+                            show_input=show_input,
+                            method_vertex=method_vertex,
+                            method_beam=method_beam,
+                            show_debug=show_debug,
+                            use_bag_panden=True)
+    except BlikVeldException as b:
+        from flask import json
+        r = {'error': 'BlikVeldException', 'message': b.args[0]}
+        response = app.response_class(
+            response=json.dumps(r),
+            status=400,
+            mimetype='application/json'
+        )
+        return response
+    except Exception as e:
+        from flask import json
+        print(e)
+        print(e.args[0])
+        r = {'error': 'Exception', 'message': e.args[0]}
+        response = app.response_class(
+            response=json.dumps(r),
+            status=500,
+            mimetype='application/json'
+        )
+        return response
+    except:
+        from flask import json
+        r = {'error': 'Exception', 'message': 'unknown error'}
+        response = app.response_class(
+            response=json.dumps(r),
+            status=500,
+            mimetype='application/json'
+        )
+        return response
 
     if 'format' in request.values and request.values['format'].upper() == 'FORMAT_QGIS':
         b.show_in_qgis(result_json)
