@@ -13,6 +13,15 @@ body {
 }
 h1, h2, h3, label, td{
 }
+p{
+  margin:2px 0 16px 0;
+}
+li{
+  margin:8px 0;
+}
+ul{
+  margin-bottom: 24px;
+}
 a{
   color: #AE4A4C;
   text-decoration: none;
@@ -102,34 +111,38 @@ button{
   </div>
   <div class="intro">
     <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/blikveld2bag.png?raw=true" />
-    <p class="smaller">
-      Code door <a href="http://zuidt.nl/">Richard Duivenvoorde</a>, mentaal terzijde gestaan door <a href="http://islandsofmeaning.nl/">Menno den Engelse</a>, mede mogelijk gemaakt door een financiële bijdrage van het <a href="https://noord-hollandsarchief.nl/">Noord-Hollands Archief</a>, code op <a href="https://github.com/rduivenvoorde/blikveld">GitHub</a>. 
+    <p class="smaller" style="margin-top: 24px;">
+      Code door <a href="http://zuidt.nl/">Richard Duivenvoorde</a>, vanaf de zijlijn aangemoedigd door <a href="http://islandsofmeaning.nl/">Menno den Engelse</a>, mede mogelijk gemaakt door een financiële bijdrage van het <a href="https://noord-hollandsarchief.nl/">Noord-Hollands Archief</a>, code op <a href="https://github.com/rduivenvoorde/blikveld">GitHub</a>. 
     </p>
   </div> 
 </div>
 
 
 <h2>Verplichte Parameter</h2>
+
 <table>
   <tr>
-    <td>
+    <td style="width: 30%">
       <strong>camera_json</strong>
     </td>
-    <td>
+    <td style="width: 30%">
       camera_json=[urlencoded geojson]
     </td>
     <td>
-      <em>Verplicht</em> - de geojson moet een GeometryCollection bevatten met een punt (het camerastandpunt) en een lijn (de tegenovergelegen zijde waarmee het blikveld wordt uitgedrukt), zoals het <a href="http://spacetime.nypl.org/Leaflet.GeotagPhoto/examples/camera.html">NYPL tooltje</a> die maakt.
+      De geojson moet een GeometryCollection bevatten met een punt (het camerastandpunt) en een lijn (de tegenovergelegen zijde waarmee het blikveld wordt uitgedrukt), zoals het <a href="http://spacetime.nypl.org/Leaflet.GeotagPhoto/examples/camera.html">NYPL tooltje</a> die maakt.
     </td>
   </tr>
 </table>
+
+
 <h2>Optionele Parameters</h2>
+
 <table>
   <tr>
-    <td>
+    <td style="width: 30%">
       <strong>camera_scale</strong>
     </td>
-    <td>
+    <td style="width: 30%">
       camera_scale=1.33
     </td>
     <td>
@@ -213,6 +226,17 @@ button{
       bereken zichtbaarheid door te kijken of stralen vanuit het camerastandpunt tegen panden op botsen
     </td>
   </tr>
+  <tr>
+    <td>
+      <strong>show_debug</strong>
+    </td>
+    <td>
+      show_debug=true
+    </td>
+    <td>
+      geeft ALLE features terug die hebben meegedaan in de analyses: 'beams', 'vertices', opgehaalde panden etc etc: VEEL!
+    </td>
+  </tr>
 </table>
 
 <p>Gebruik de 'Verstuur (GET)'-knop om de GET parameters en de url te kunnen zien in de browser.
@@ -293,8 +317,6 @@ De api zelf werkt zowel met POST als GET.
 
   <p>
     <button type="submit" onclick="document.getElementById('testform').method='POST';">Verstuur (POST)</button>
-    <br/>
-    <br/>
     <button type="submit" onclick="document.getElementById('testform').method='GET';">Verstuur (GET)</button>
     <p class="smaller">Met de GET knop zie je de met dit formulier opgebouwde url in de browser</p>
   </p>
@@ -374,6 +396,8 @@ Het script gebruikt twee manieren om te kijken of er ongehinderd zicht is tussen
     </p>
     <p>
       Onderstaande figuren tonen alle 'debug' informatie uit de analyse:
+    </p>
+    <ul>
       <li>De driehoek van de camera: de grijze driehoek</li>
       <li>Alle panden die ermee overlappen: de niet gevulde blauwe vlakken.</li>
       <li>De "beams's" (in dit geval slechts 20): de groene lijntjes</li>
@@ -382,7 +406,7 @@ Het script gebruikt twee manieren om te kijken of er ongehinderd zicht is tussen
       <li>De geselecteerde (meest dichtbij) gelegen daarvan: de kleine rode puntjes</li>
       <li>De op basis daarvan geselecteerde panden: de blauwe gevulde vlakken</li>
       <li>Op basis waarvan de adressen zijn opgehaald: de grote ronde punten</li>
-    </p>
+    </ul>
     <p>
       <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/beam_hits.png?raw=true" />
     </p>
@@ -397,6 +421,8 @@ Het script gebruikt twee manieren om te kijken of er ongehinderd zicht is tussen
     </p>
     <p>
       Onderstaande figuur toont alle 'debug' informatie uit de analyse:
+    </p>
+    <ul>
       <li>De driehoek van de camera: de grijze driehoek</li>
       <li>Alle panden die ermee overlappen: de niet gevulde blauwe vlakken.</li>
       <li>Alle hoekpuntjes binnen de camera die meedoen: de kleine paarse puntjes</li>
@@ -404,7 +430,7 @@ Het script gebruikt twee manieren om te kijken of er ongehinderd zicht is tussen
       <li>De geselecteerde (meest dichtbij) gelegen punten 'in het zicht': de groene puntjes</li>
       <li>De op basis daarvan geselecteerde panden: de blauwe gevulde vlakken</li>
       <li>Op basis waarvan de adressen zijn opgehaald: de grote ronde punten</li>
-    </p>
+    </ul>
     <p>
       <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/vertex_hits.png?raw=true" />
     </p>
