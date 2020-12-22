@@ -6,13 +6,16 @@
 
 body {
   margin: 40px 10%;
-  font-family: Garamond, serif;
+  font-family: Helvetica, sans-serif;
   background-color: #fff;
   color: #444;
   font-size: 20px;
 }
 h1, h2, h3, label, td{
-  font-family: Helvetica, sans-serif;
+}
+a{
+  color: #AE4A4C;
+  text-decoration: none;
 }
 .wrapper {
   margin: 0 20px;
@@ -36,10 +39,12 @@ h1, h2, h3, label, td{
 }
 
 .wrapper > * {
-  background-color: #e4e1f0;
   padding: 20px;
   /* needed for the floated layout*/
   margin-bottom: 10px;
+}
+form{
+  background-color: #c6d7ff;
 }
 textarea{
   width: 100%;
@@ -55,6 +60,21 @@ td{
   padding: 8px 20px 8px 0;
   font-size: 16px;
 }
+img{
+  width: 100%;
+}
+.intro{
+  background-color: #F7F7F6;
+}
+.smaller{
+  font-size: 0.7em;
+}
+button{
+  background-color: #808aa2;
+  padding: 8px 12px;
+  color: #fff;
+  font-weight: bold;
+}
 
 
 </style>
@@ -65,11 +85,29 @@ td{
   <h1>Blikveld2BAG</h1>
 </div>
 
-<p>
-  De Blikveld2BAG API geeft de panden terug die binnen een blikveld vallen. Zo'n blikveld is een driehoekje waarvan 1 hoek het camerastandpunt is. Voor de New York Public Library maakte Bert Spaan een <a href="http://spacetime.nypl.org/Leaflet.GeotagPhoto/examples/camera.html">tooltje om zo'n blikveld mee te tekenen</a>. De output van dat tooltje dient als de input voor deze api.
-</p>
+<div class="wrapper">
+  <div class="intro">
+    <p>
+      De Blikveld2BAG API geeft de panden (en adressen) terug die op de foto te zien zouden moeten zijn. Voor de New York Public Library maakte Bert Spaan eerder een <a href="http://spacetime.nypl.org/Leaflet.GeotagPhoto/examples/camera.html">tooltje om zo'n blikveld mee te tekenen</a>. De output van dat tooltje dient als de input voor deze api.
+    </p>
+    <p>
+      De API geeft alleen de panden terug die daadwerkelijk in zicht staan, panden die achter andere panden staan worden niet teruggegeven.
+    </p>
+    <p>
+      Bouwjaren worden meegegeven, zodat je desgewenst rekening kunt houden met het moment waarop een foto is genomen.
+    </p>
+    <p>
+      Onder het kopje <a href="#hoehetwerkt">Hoe het werkt</a> meer over ... hoe het werkt.
+    </p>
+  </div>
+  <div class="intro">
+    <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/blikveld2bag.png?raw=true" />
+    <p class="smaller">
+      Code door <a href="http://zuidt.nl/">Richard Duivenvoorde</a>, mentaal terzijde gestaan door <a href="http://islandsofmeaning.nl/">Menno den Engelse</a>, mede mogelijk gemaakt door een financiële bijdrage van het <a href="https://noord-hollandsarchief.nl/">Noord-Hollands Archief</a>, code op <a href="https://github.com/rduivenvoorde/blikveld">GitHub</a>. 
+    </p>
+  </div> 
+</div>
 
-[hier een afbeelding invoegen, misschien links een blikveld -> rechts de gevonden panden] <br />
 
 <h2>Verplichte Parameter</h2>
 <table>
@@ -81,7 +119,7 @@ td{
       camera_json=[urlencoded geojson]
     </td>
     <td>
-      De geojson moet een GeometryCollection bevatten met een punt (het camerastandpunt) en een lijn (de tegenovergelegen zijde waarmee het blikveld wordt uitgedrukt), zoals het <a href="http://spacetime.nypl.org/Leaflet.GeotagPhoto/examples/camera.html">NYPL tooltje</a> die maakt.
+      <em>Verplicht</em> - de geojson moet een GeometryCollection bevatten met een punt (het camerastandpunt) en een lijn (de tegenovergelegen zijde waarmee het blikveld wordt uitgedrukt), zoals het <a href="http://spacetime.nypl.org/Leaflet.GeotagPhoto/examples/camera.html">NYPL tooltje</a> die maakt.
     </td>
   </tr>
 </table>
@@ -95,7 +133,7 @@ td{
       camera_scale=1.33
     </td>
     <td>
-      verlengt het blikveld. Als je denkt dat mensen het blikveld wat 'kort' getrokken hebben, kan je het met dit getal 'verlengen'.
+      Verlengt het blikveld. Als je denkt dat mensen het blikveld wat 'kort' getrokken hebben, kan je het met dit getal 'verlengen'.
     </td>
   </tr>
   <tr>
@@ -111,18 +149,73 @@ td{
   </tr>
   <tr>
     <td>
-      <strong>etc</strong>
+      <strong>output</strong>
     </td>
     <td>
-      Gebruik de Submit GET knop om de GET parameters en de url te kunnen zien in de browser
+      output=output_pand_punten
     </td>
     <td>
-      
+      de opties zijn 'output_adres_punten', 'output_pand_vlakken' of 'output_pand_punten'
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <strong>format</strong>
+    </td>
+    <td>
+      format=format_geojson
+    </td>
+    <td>
+      de opties zijn 'format_geojson', 'format_geojson_io', 'format_geojson_html' of 'format_qgis'
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <strong>show_cameras</strong>
+    </td>
+    <td>
+      show_cameras=true
+    </td>
+    <td>
+      toont in de resultaten ook de geometrie van het blikveld
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <strong>show_input</strong>
+    </td>
+    <td>
+      show_input=true
+    </td>
+    <td>
+      toont alle panden binnen de driehoek van het blikveld, ook de panden die achter een ander staan
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <strong>method_vertex</strong>
+    </td>
+    <td>
+      method_vertex=true
+    </td>
+    <td>
+      bereken zichtbaarheid vanuit hoekpunten panden naar camerastandpunt
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <strong>method_beam</strong>
+    </td>
+    <td>
+      method_beam=true
+    </td>
+    <td>
+      bereken zichtbaarheid door te kijken of stralen vanuit het camerastandpunt tegen panden op botsen
     </td>
   </tr>
 </table>
 
-
+<p>Gebruik de Submit GET knop om de GET parameters en de url te kunnen zien in de browser</p>
 
 <h2>Probeer het zelf</h2>
 
@@ -144,54 +237,67 @@ td{
     <option value="0.5">0.5</option>
   </select>
 
-  <p>
+  <p class="smaller">
     De <code>camera_scale</code> verlengt (of verkort) het blikveld. Als je denkt dat mensen het blikveld wat 'kort' getrokken hebben, kan je het met dit getal veranderen.
   </p>
-
-  <br/>
   <!--<label>WFS Data source</label>
   <select name="datasource" id="datasource">
     <option value="use_bag_panden">BAG Panden</option>
     <option value="use_kadaster_bebouwing">Kadaster Bebouwing</option>
   </select>
   <br/>-->
-  <label>Output</label>
-  <select name="output">
+  <label>Output</label><br />
+
+  <select name="output" style="width: 50%;">
     <option value="output_adres_punten">Adres Punten</option>
     <option value="output_pand_vlakken">Pand Vlakken</option>
     <option value="output_pand_punten">Pand Punten</option>
   </select>
-  <br/>
-  <label>Format</label>
-  <select name="format">
+
+  <p class="smaller">Wil je punten van BAG adressen, vlakken van BAG panden of de middenpunten van die vlakken?</p>
+
+  <label>Format</label><br />
+
+  <select name="format" style="width: 50%;">
     <option value="format_geojson">GeoJson</option>
     <option value="format_geojson_io">geojson.io</option>
     <option value="format_geojson_html">Geojson in HTML</option>
     <option value="format_qgis">QGIS (alleen lokaal mogelijk)</option>
   </select>
-  <br/>
-  <br/>
-  <label>Toon Camera's (show_cameras)</label><input type="checkbox" id="show_cameras" name="show_cameras" checked>
-  <br/>
-  <label>Toon Input Features (show_input)</label><input type="checkbox" id="show_input" name="show_input">
-  <br/>
-  <label>Gebruik 'vertex' methode (method_vertex)</label><input type="checkbox" id="method_vertex" name="method_vertex" checked>
-  <br/>
-  <label>Gebruik 'beam' methode (method_beam)</label><input type="checkbox" id="method_beam" name="method_beam" checked>
-  <br/>
-  <label>Retourneer Debug Features (show_debug)</label><input type="checkbox" id="show_debug" name="show_debug">
-  <br/>
-  <br/>
-  <label>Door de GET knop te gebruiken kun je de uitgevoerde URL bekijken in de browser</label>
-  <br/>
-  <button type="submit" onclick="document.getElementById('testform').method='POST';">Submit POST</button>
-  <button type="submit" onclick="document.getElementById('testform').method='GET';">Submit GET</button>
+
+  <p class="smaller">Wil je de kale GeoJson of de resultaten meteen bekijken?</p>
+
+  <input type="checkbox" id="show_cameras" name="show_cameras" checked> <label>Toon Camera's (show_cameras)</label>
+
+  <p class="smaller">Wil je het blikveld driehoekje als geometrie opgenomen hebben in het resultaat?</p>
+  
+  <input type="checkbox" id="show_input" name="show_input"> <label>Toon Input Features (show_input)</label>
+
+  <p class="smaller">Toont alle panden die binnen het driehoekje vallen (dus ook de panden die achter andere staan)</p>
+
+  <input type="checkbox" id="method_vertex" name="method_vertex" checked> <label>Gebruik 'vertex' methode (method_vertex)</label>
+  
+  <p class="smaller">Kijkt of er onbelemmerd zicht is van hoekpunten panden naar camerastandpunt.</p>
+
+  <input type="checkbox" id="method_beam" name="method_beam" checked> <label>Gebruik methode 'beam'</label>
+  
+  <p class="smaller">Trekt stralen vanuit het camerastandpunt en kijkt of ze tegen een pand 'botsen'. De beste resultaten krijg je door zowel de 'beam' als de 'vertex' methode te gebruiken.</p>
+
+  <input type="checkbox" id="show_debug" name="show_debug"><label>Retourneer Debug Features (show_debug)</label>
+
+  <p class="smaller">Hiermee krijg je ALLE features terug die hebben meegedaan in de analyses: 'beams', 'vertices', opgehaalde panden etc etc: VEEL!</p>
+
+  <p>
+    <button type="submit" onclick="document.getElementById('testform').method='POST';">Submit POST</button>
+    <br/>
+    <button type="submit" onclick="document.getElementById('testform').method='GET';">Submit GET</button> <label>Hiermee zie je de url in de browser</label>
+  </p>
 
   </div>
 
   <div class="entry">
 
-  <textarea name="camera_json" rows="34">
+  <textarea name="camera_json" rows="45">
 {
   "type": "Feature",
   "properties": {
@@ -233,4 +339,63 @@ td{
 
 </form>
 
-<h2>Hoe het werkt</h2>
+<h2 id="hoehetwerkt">Hoe het werkt</h2>
+
+
+Het script gebruikt twee manieren om te kijken of er ongehinderd zicht is tussen pand en camerastandpunt: de 'beam' methode en de 'vertex' methode. Beide manieren hebben zo hun voordelen en nadelen, maar als ze samen gebruikt worden vullen ze elkaar prima aan.
+
+<ul>
+  <li>
+    <h3>Beam</h3>
+    <p>
+      Op de tegenover het camerastandpunt gelegen zijde van de blikvelddriehoek worden 100 puntjes gezet, en tussen die puntjes en het camerastandpunt worden stralen getekend. Van elk van die stralen wordt gekeken welke panden doorsneden worden, en of er tussen dat snijpunt en het camerastandpunt een ander pand ligt dat het zicht belemmert.
+    </p>
+    <p>
+      Nadeel van deze methode is, dat je panden kunt 'missen' als je erg schuin een straat in kijkt. Als een gevel vrijwel parralel loopt aan de stralen is de kans niet onverwaarloosbaar dat de gevel tussen twee stralen in valt en dus niet geraakt wordt.
+    </p>
+  </li>
+  <li>
+    <h3>Vertex</h3>
+    <p>
+      De vertex methode werkt andersom en neemt de panden die binnen de driehoek vallen als uitgangspunt. Vanuit elk coördinaat in de polygoon van elk pand wordt een lijn getrokken naar het camerastandpunt, en vervolgens wordt gekeken of die lijn onderweg niet een ander pand raakt.
+    </p>
+    <p>
+      Ook als je heel schuin een straat in kijkt wordt elk pand (voor zover dat tenminste niet ergens achter ligt) zo keurig meegenomen.
+    </p>
+    <p>
+      Stel je nu voor dat je vanuit straat A naar een t-splitsing kijkt, en dat aan straat B, waar je tegenaan kijkt, een breed pand ligt. Het kan best dat de hoeken van dat pand niet zichtbaar zijn door de bebouwing in straat A, terwijl de rest van het pand toch prominent in beeld is. Of dat de fotograaf zo dicht op een pand stond dat er überhaupt geen hoeken op de foto terecht zijn gekomen. Dan is het goed om terug te kunnen vallen op methode 'beam'.
+    </p>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
