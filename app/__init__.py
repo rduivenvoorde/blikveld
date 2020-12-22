@@ -1,6 +1,8 @@
 from flask import Flask
 from flask import request
 from flask import render_template
+from flask import redirect
+from flask import url_for
 
 from blikveld.camera import BlikVeld
 
@@ -11,6 +13,9 @@ def blikveld():
     return BlikVeld().run()
 
 @app.route('/')
+def root():
+    return redirect(url_for('camera'))
+
 @app.route('/camera', methods=['GET'])
 def camera():
     return render_template('camera.html')
