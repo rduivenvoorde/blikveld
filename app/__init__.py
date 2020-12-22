@@ -1,19 +1,26 @@
 from flask import Flask
 from flask import request
 from flask import render_template
+from flask import redirect
+from flask import url_for
 
 from blikveld.camera import BlikVeld
 
 app = Flask(__name__)
 
-@app.route('/blikveld')
-def blikveld():
-    return BlikVeld().run()
+# @app.route('/blikveld')
+# def blikveld():
+#     return BlikVeld().run()
 
 @app.route('/')
+@app.route('/index')
+@app.route('/index.html')
+def root():
+    return render_template('index.html', )
+
 @app.route('/camera', methods=['GET'])
 def camera():
-    return render_template('camera.html')
+    return render_template('camera.html', )
 
 # http://127.0.0.1:5000/api?camera_json={%22type%22:%20%22Feature%22,%22properties%22:%20{%22angle%22:%2038.876645504061116,%22bearing%22:%2031.979981482645943,%22distance%22:%2087.9921646359149},%22geometry%22:%20{%22type%22:%20%22GeometryCollection%22,%22geometries%22:%20[{%22type%22:%20%22Point%22,%22coordinates%22:%20[4.646878838539124,52.3969167956431]},{%22type%22:%20%22LineString%22,%22coordinates%22:%20[[4.647177386477727,52.39773567907421],[4.647953579015309,52.39743995473123]]}]}}&camera_scale=1.5&show_cameras=true
 @app.route('/api', methods=['POST', 'GET'])
