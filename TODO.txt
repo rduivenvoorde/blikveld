@@ -1,15 +1,7 @@
-
+- /api geeft nu foutmelding
 - logging van Requests/Flask: https://flask.palletsprojects.com/en/1.1.x/logging/
-- vangen van Excepties: https://flask.palletsprojects.com/en/1.1.x/errorhandling/
-- QGIS project
-- Saven van vaste geojson
 - checken op max grootte camera
 - checken op max aantal panden/adressen
-- 200 teruggeven als goed
-- input fouten
-- netwerk fouten
-- andere fouten
-- 500(?) als fout
 
 
 camera.json
