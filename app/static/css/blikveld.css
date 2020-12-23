@@ -1,0 +1,81 @@
+
+body {
+  margin: 40px 10%;
+  font-family: Helvetica, sans-serif;
+  background-color: #fff;
+  color: #444;
+  font-size: 20px;
+}
+h1, h2, h3, label, td{
+}
+p{
+  margin:2px 0 16px 0;
+}
+li{
+  margin:8px 0;
+}
+ul{
+  margin-bottom: 24px;
+}
+a{
+  color: #AE4A4C;
+  text-decoration: none;
+}
+.wrapper {
+  margin: 0 20px;
+  display: grid;
+  grid-gap: 0px;
+}
+
+@media screen and (min-width: 500px) {
+
+  .wrapper {
+    margin: 0 auto;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .header, .footer {
+    grid-column: 1 / -1;
+    /* needed for the floated layout */
+    clear: both;
+  }
+
+}
+
+.wrapper > * {
+  padding: 20px;
+  /* needed for the floated layout*/
+  margin-bottom: 10px;
+}
+form{
+  background-color: #c6d7ff;
+}
+textarea{
+  width: 100%;
+}
+pre{
+  overflow: auto;
+  background-color: #edefee;
+  padding: 5px;
+}
+td{
+  vertical-align: top;
+  border-top: 1px solid #ccc;
+  padding: 8px 20px 8px 0;
+  font-size: 16px;
+}
+img{
+  width: 100%;
+}
+.intro{
+  background-color: #F7F7F6;
+}
+.smaller{
+  font-size: 0.7em;
+}
+button{
+  background-color: #808aa2;
+  padding: 8px 12px;
+  color: #fff;
+  font-weight: bold;
+}

@@ -7,7 +7,10 @@ from flask import url_for
 from blikveld.camera import BlikVeld
 from blikveld.exception import BlikVeldException
 
-app = Flask(__name__)
+app = Flask(__name__,
+            static_url_path='',
+            static_folder='static',
+            template_folder='templates')
 
 # @app.route('/blikveld')
 # def blikveld():
@@ -41,7 +44,7 @@ def api():
         if request.values['output'].upper() in ('1', 'BLIKVELD.OUTPUT_PAND_VLAKKEN', 'OUTPUT_PAND_VLAKKEN'):
             output = BlikVeld.OUTPUT_PAND_VLAKKEN
         elif request.values['output'].upper() in ('2', 'BLIKVELD.OUTPUT_PAND_PUNTEN', 'OUTPUT_PAND_PUNTEN'):
-            output = BlikVeld.OUTPUT_PAND_VLAKKEN
+            output = BlikVeld.OUTPUT_PAND_PUNTEN
     show_input = False
     if 'show_input' in request.values:
         show_input = True  # request.values['show_input']

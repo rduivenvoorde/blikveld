@@ -1,95 +1,11 @@
 <!doctype html>
 
-<title>Camera json</title>
+<head>
+  <title>Camera json</title>
+  <link href="css/blikveld.css" rel="stylesheet">
+</head>
 
-<style type="text/css">
-
-body {
-  margin: 40px 10%;
-  font-family: Helvetica, sans-serif;
-  background-color: #fff;
-  color: #444;
-  font-size: 20px;
-}
-h1, h2, h3, label, td{
-}
-p{
-  margin:2px 0 16px 0;
-}
-li{
-  margin:8px 0;
-}
-ul{
-  margin-bottom: 24px;
-}
-a{
-  color: #AE4A4C;
-  text-decoration: none;
-}
-.wrapper {
-  margin: 0 20px;
-  display: grid;
-  grid-gap: 0px;
-}
-
-@media screen and (min-width: 500px) {
-
-  .wrapper {
-    margin: 0 auto;
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .header, .footer {
-    grid-column: 1 / -1;
-    /* needed for the floated layout */
-    clear: both;
-  }
-
-}
-
-.wrapper > * {
-  padding: 20px;
-  /* needed for the floated layout*/
-  margin-bottom: 10px;
-}
-form{
-  background-color: #c6d7ff;
-}
-textarea{
-  width: 100%;
-}
-pre{
-  overflow: auto;
-  background-color: #edefee;
-  padding: 5px;
-}
-td{
-  vertical-align: top;
-  border-top: 1px solid #ccc;
-  padding: 8px 20px 8px 0;
-  font-size: 16px;
-}
-img{
-  width: 100%;
-}
-.intro{
-  background-color: #F7F7F6;
-}
-.smaller{
-  font-size: 0.7em;
-}
-button{
-  background-color: #808aa2;
-  padding: 8px 12px;
-  color: #fff;
-  font-weight: bold;
-}
-
-
-</style>
-
-
-
+<body>
 <div class="header">
   <h1>Blikveld2BAG</h1>
 </div>
@@ -110,7 +26,7 @@ button{
     </p>
   </div>
   <div class="intro">
-    <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/blikveld2bag.png?raw=true" />
+    <img src="imgs/blikveld2bag.png" />
     <p class="smaller" style="margin-top: 24px;">
       Code door <a href="http://zuidt.nl/">Richard Duivenvoorde</a>, vanaf de zijlijn aangemoedigd door <a href="http://islandsofmeaning.nl/">Menno den Engelse</a>, mede mogelijk gemaakt door een financiële bijdrage van het <a href="https://noord-hollandsarchief.nl/">Noord-Hollands Archief</a>, code op <a href="https://github.com/rduivenvoorde/blikveld">GitHub</a>. 
     </p>
@@ -147,17 +63,6 @@ button{
     </td>
     <td>
       Verlengt het blikveld. Als je denkt dat mensen het blikveld wat 'kort' getrokken hebben, kan je het met dit getal 'verlengen'.
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <strong>show_result_centroids</strong>
-    </td>
-    <td>
-      show_result_centroids=true
-    </td>
-    <td>
-      geeft punten voor de panden i.p.v. polygonen
     </td>
   </tr>
   <tr>
@@ -201,7 +106,7 @@ button{
       show_input=true
     </td>
     <td>
-      toont alle panden binnen de driehoek van het blikveld, ook de panden die achter een ander staan
+      toont alle panden (voor de analyse) binnen de driehoek van het blikveld, ook de panden die achter een ander staan
     </td>
   </tr>
   <tr>
@@ -376,6 +281,10 @@ De api zelf werkt zowel met POST als GET.
 
 <p>
   Het script retourneert eigenlijk altijd <a href="https://geojson.org/">GeoJSON</a> of een json met een foutmelding.
+  GeoJSON kun je eenvoudig bekijken (en maken) op <a href="https://geojson.io/">https://geojson.io/</a> of in <a href="https://qgis.org">QGIS</a>.
+  Er is via <a href="https://github.com/rduivenvoorde/blikveld/blob/master/blikveld/qgisproject.qgz?raw=true">Github een QGIS project</a>
+  beschikbaar met styling (zoals in onderstaande afbeeldingen) die GeoJSON MET debug informatie inzichtelijker maakt.
+  Zorg dat de GeoJSON met als naam 'result.json' in dezelfde map staat als de QGIS-projectfile.
 </p>
 
 <p>
@@ -408,10 +317,10 @@ Het script gebruikt twee manieren om te kijken of er ongehinderd zicht is tussen
       <li>Op basis waarvan de adressen zijn opgehaald: de grote ronde punten</li>
     </ul>
     <p>
-      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/beam_hits.png?raw=true" />
+      <img src="imgs/beam_hits.png" />
     </p>
     <p>
-      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/beam_intersections.png?raw=true" />
+      <img src="imgs/beam_intersections.png" />
     </p>
   </li>
   <li>
@@ -432,7 +341,7 @@ Het script gebruikt twee manieren om te kijken of er ongehinderd zicht is tussen
       <li>Op basis waarvan de adressen zijn opgehaald: de grote ronde punten</li>
     </ul>
     <p>
-      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/vertex_hits.png?raw=true" />
+      <img src="imgs/vertex_hits.png" />
     </p>
     <p>
       Ook als je heel schuin een straat in kijkt wordt elk pand (voor zover dat tenminste niet ergens achter ligt) zo keurig meegenomen.
@@ -441,18 +350,18 @@ Het script gebruikt twee manieren om te kijken of er ongehinderd zicht is tussen
       Stel je nu voor dat je vanuit straat A naar een t-splitsing kijkt, en dat aan straat B, waar je tegenaan kijkt, een breed pand ligt. Het kan best dat de hoeken van dat pand niet zichtbaar zijn door de bebouwing in straat A, terwijl de rest van het pand toch prominent in beeld is. Of dat de fotograaf zo dicht op een pand stond dat er überhaupt geen hoeken op de foto terecht zijn gekomen. Hieronder zo'n geval.
     </p>
     <p>
-      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/broodfabriekpoort_vertex.png?raw=true" />
+      <img src="imgs/broodfabriekpoort_vertex.png" />
     </p>
     <p>
       De beam-methode (hier met 'maar' 20 beams (standaard 100)) werkt dan wel:
     </p>
     <p>
-      <img src="https://github.com/rduivenvoorde/blikveld/blob/master/imgs/broodfabriekpoort_beam.png?raw=true" />
+      <img src="imgs/broodfabriekpoort_beam.png" />
     </p>
   </li>
 </ul>
 
-
+</body>
 
 
 
