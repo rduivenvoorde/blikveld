@@ -2,7 +2,7 @@
 import unittest
 import geojson
 import webbrowser
-import camera_jsons
+from . import camera_jsons
 
 from blikveld.camera import BlikVeld
 
@@ -12,8 +12,8 @@ class MyTestCase(unittest.TestCase):
         result = geojson.loads(geo_json)
         self.assertEqual(result.type, 'FeatureCollection')
         self.assertTrue(result.is_valid)
-        self.assertEqual(result.metadata['fetched'], fetched)
-        self.assertEqual(result.metadata['hits'], hits)
+        self.assertEqual(result.metadata['panden_fetched'], fetched)
+        self.assertEqual(result.metadata['panden_hits'], hits)
 
     def show_in_browser(self, geo_json):
         import urllib.parse
