@@ -62,6 +62,14 @@ class BlikVeld:
     }
     """
 
+    # other tests
+
+    # EMPTY camera triangle: no panden or adressen
+    #CAMERA_JSON = '{"type":"Feature","properties":{"angle":48.784137579491016,"bearing":-53.03487094088205,"distance":43.87298226576673},"geometry":{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[4.6240058542389315,52.42099082074203]},{"type":"LineString","coordinates":[[4.6233127255571596,52.42108509626302],[4.623665439086988,52.42137091346231]]}]}}'
+
+    # zijlweg haarlem
+    #CAMERA_JSON = '{"type":"Feature","properties":{"angle":47,"bearing":16.905991026753036,"distance":67.6216242191199},"geometry":{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[4.607310891151429,52.3879350310301]},{"type":"LineString","coordinates":[[4.607186155995425,52.3885935737961],[4.608014981356438,52.38843982926623]]}]}}'
+
     def show_in_geojson_io(self, geo_json):
         import urllib.parse
         result_json_encoded = urllib.parse.quote(geo_json)
@@ -375,9 +383,11 @@ class BlikVeld:
                         if intersections.type == 'MultiLineString':
                             # testing here to be able to filter out those, as OTHERS should be wrapped in a list
                             # print(intersections)
-                            pass
+                            # RD 20211202 fix deprecation warning: you cannot iterate over a multi geom, use 'geoms':
+                            intersections = intersections.geoms
                         else:
                             intersections = [intersections]  # pack a single linestring in a list to be able to walk over it
+
                         for intersection_linestring in intersections:
                             for intersection in intersection_linestring.coords:
                                 intersection_point_feature = geojson.feature.Feature(geometry=geojson.geometry.Point(intersection), properties={'id': object_id, 'blikveld_type': 'beam_intersection_point'})
