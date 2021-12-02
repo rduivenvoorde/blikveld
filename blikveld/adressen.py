@@ -51,7 +51,9 @@ class Adressen:
                 property_filter = property_filter + f'<PropertyIsEqualTo><PropertyName>bag:pandidentificatie</PropertyName><Literal>{bag_id}</Literal></PropertyIsEqualTo>'
             property_filter = property_filter + '</Or>'
         elif len(bag_ids_stringlist) == 0:
-            raise BlikVeldException(f'Trying to find BAG adressen, but empty Pand list: {bag_ids_stringlist}')
+            #raise BlikVeldException(f'Trying to find BAG adressen, but empty Pand list: {bag_ids_stringlist}')
+            # RD 20211202 NOT raising exception, but returning an empty panden list
+            return geojson.loads('{"type": "FeatureCollection", "features": []}')
         else:
             raise BlikVeldException(f'Something Wrong with the bag id parameters: {bag_ids_stringlist}')
         
@@ -75,7 +77,9 @@ class Adressen:
 
         from urllib3 import exceptions
         try:
-            req = requests.Request('POST', self.KADASTER_BEBOUWING_WFS_URL, data=params)
+            # 13 dec: adding close on header, after seeing: ResourceWarning: unclosed <ssl.SSLSocket fd=3, family=AddressFamily.AF_INET6, type=SocketKind.SOCK_STREAM, proto=6, laddr=('2a10:3781:52f:1:37e8:b7a7:506a:e978', 52898, 0, 0), raddr=('2001:67c:2f04:f300::123', 443, 0, 0)>
+            # see: https://stackoverflow.com/questions/10115126/python-requests-close-http-connection
+            req = requests.Request('POST', self.KADASTER_BEBOUWING_WFS_URL, data=params, headers={'Connection': 'close'})
             prepared = req.prepare()
 
             self.url = req.url
