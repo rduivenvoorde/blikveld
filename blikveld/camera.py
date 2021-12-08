@@ -8,9 +8,16 @@ import webbrowser
 import shapely.geometry
 import shapely.affinity
 import shapely.ops
+import shapely.validation
 
 # pip install geojson
 import geojson  # https://pypi.org/project/geojson/
+# default geojson latlon coordinate precision is 6(!) raising precision and validity issues
+# optionally set this to
+# 15 (== default precision of Kadaster)
+# or
+# 9 (== default in http://bag.basisregistraties.overheid.nl/bag/id/pand/0392100000064016 )
+geojson.geometry.Geometry.__init__.__defaults__ = (None, False, 10)
 
 from blikveld import adressen
 
@@ -69,6 +76,13 @@ class BlikVeld:
 
     # zijlweg haarlem
     #CAMERA_JSON = '{"type":"Feature","properties":{"angle":47,"bearing":16.905991026753036,"distance":67.6216242191199},"geometry":{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[4.607310891151429,52.3879350310301]},{"type":"LineString","coordinates":[[4.607186155995425,52.3885935737961],[4.608014981356438,52.38843982926623]]}]}}'
+
+    # invalid geom
+    #CAMERA_JSON = '{"type":"Feature","properties":{"angle":44.81049770695438,"bearing":63.71807271090881,"distance":98.70707337686036},"geometry":{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[4.644266366958619,52.38168676539372]},{"type":"LineString","coordinates":[[4.645304526809721,52.382407738976646],[4.645835310326401,52.38175165140378]]}]}}'
+    # invalid geom
+    #CAMERA_JSON = '{"type":"Feature","properties":{"angle":35,"bearing":28.086865300697603,"distance":318.8683789939526},"geometry":{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[4.6061253547668,52.358016103069]},{"type":"LineString","coordinates":[[4.607029679200716,52.36097080538856],[4.609641229193291,52.36011964250833]]}]}}'
+
+
 
     def show_in_geojson_io(self, geo_json):
         import urllib.parse
@@ -320,8 +334,40 @@ class BlikVeld:
             else:
                 raise exception.BlikVeldException(f'WFS url returned features without known primary key (tried "id" and "gid")')
 
-        result_dict = {}
+        # extra check for invalid geometries AND trying to fix them..
+        invalid_features = []
+        for key in shapely_dict.keys():
+            geom = shapely_dict[key]
+            if not geom.is_valid:
+                #print(geom)
+                #print(feature_dict[key]['properties']['rdf_seealso'])
+                invalid_features.append(feature_dict[key])
+                # geom = shapely.validation.make_valid(geom)
+                # if geom.is_valid:
+                #     print(f'Invalid: {key} \n {shapely_dict[key]}')
+                #     print(f'Fixed: {geom}')
+                #     print(f'Feature: {feature_dict[key]}')
+                #     # fixed geom is a geometrycollection...
+                #     valid = False
+                #     for g in geom.geoms:
+                #         if g.geom_type in ('MultiPolygon', 'Polygon'):
+                #             # hoping the fix had just one (multi)polygon
+                #             print(f'Using: {g}')
+                #             shapely_dict[key] = g
+                #             valid = True
+                #             break
+                #     if not valid:
+                #         # mmm, we fixed an invalid polygon, but did not find a (fixed) (muli)polygon
+                #         raise exception.BlikVeldException(f'WFS returned on or more invalid (non fixable) features: {shapely_dict[key]}')
+                # else:
+                #     raise exception.BlikVeldException(f'WFS returned on or more invalid (non fixable) features: {shapely_dict[key]}')
+        if len(invalid_features) > 0:
+            raise exception.BlikVeldException(f'WFS returned on or more invalid (non fixable) feature geometries: {invalid_features}')
+        # debug: show all geoms from WFS
+        #for key in shapely_dict.keys():
+        #    print(shapely_dict[key])
 
+        result_dict = {}
         if method_vertex:
             for object_id, object_geom in shapely_dict.items():
                 for vertex in object_geom.exterior.coords:
