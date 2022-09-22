@@ -251,7 +251,8 @@ class BlikVeld:
             wfs_timout = 5  # kadastralekaart endpoint is NOT fast!!
         else:  # DEFAULT TO:
             # BAG WFS
-            wfs_url = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1?'
+            #wfs_url = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1?'  # sept 2022: ongeldig
+            wfs_url = 'https://service.pdok.nl/lv/bag/wfs/v2_0?'  # sept 2022
             wfs_type = 'bag:pand'
             wfs_timout = 2.5  # bag endpoint is fast!!
 

@@ -12,7 +12,8 @@ class Adressen:
     BAG_VIEWER_URL = 'https://bagviewer.kadaster.nl/lvbag/bag-viewer/api/bag/bevragen'  # ?objectIds=0392100000045927,0392100000045931
 
     # Bebouwing WFS
-    KADASTER_BEBOUWING_WFS_URL = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1'
+    KADASTER_BEBOUWING_WFS_URL = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1'  # depricated
+    KADASTER_BEBOUWING_WFS_URL = 'https://service.pdok.nl/lv/bag/wfs/v2_0'
     KADASTER_BEBOUWING_WFS_TYPE = 'bag:verblijfsobject'
     KADASTER_BEBOUWING_WFS_TIMEOUT = 3
 
